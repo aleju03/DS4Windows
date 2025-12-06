@@ -1208,6 +1208,55 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             set => Global.RSModInfo[device].fuzz = value;
         }
 
+        // Raw input offset to fix hardware stick drift
+        public int LSCenterOffsetX
+        {
+            get => Global.LSModInfo[device].xOffset;
+            set
+            {
+                if (Global.LSModInfo[device].xOffset == value) return;
+                Global.LSModInfo[device].xOffset = value;
+                LSCenterOffsetXChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        public event EventHandler LSCenterOffsetXChanged;
+
+        public int LSCenterOffsetY
+        {
+            get => Global.LSModInfo[device].yOffset;
+            set
+            {
+                if (Global.LSModInfo[device].yOffset == value) return;
+                Global.LSModInfo[device].yOffset = value;
+                LSCenterOffsetYChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        public event EventHandler LSCenterOffsetYChanged;
+
+        public int RSCenterOffsetX
+        {
+            get => Global.RSModInfo[device].xOffset;
+            set
+            {
+                if (Global.RSModInfo[device].xOffset == value) return;
+                Global.RSModInfo[device].xOffset = value;
+                RSCenterOffsetXChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        public event EventHandler RSCenterOffsetXChanged;
+
+        public int RSCenterOffsetY
+        {
+            get => Global.RSModInfo[device].yOffset;
+            set
+            {
+                if (Global.RSModInfo[device].yOffset == value) return;
+                Global.RSModInfo[device].yOffset = value;
+                RSCenterOffsetYChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        public event EventHandler RSCenterOffsetYChanged;
+
         public bool LSAntiSnapback
         {
             get => Global.LSAntiSnapbackInfo[device].enabled;

@@ -1097,6 +1097,22 @@ namespace DS4Windows
 
         public static DS4State SetCurveAndDeadzone(int device, DS4State cState, DS4State dState)
         {
+            // Apply raw input offset to recenter drifting sticks (applied FIRST, before all other processing)
+            StickDeadZoneInfo lsMod = GetLSDeadInfo(device);
+            StickDeadZoneInfo rsMod = GetRSDeadInfo(device);
+
+            if (lsMod.xOffset != 0 || lsMod.yOffset != 0)
+            {
+                cState.LX = (byte)Math.Clamp(cState.LX - lsMod.xOffset, 0, 255);
+                cState.LY = (byte)Math.Clamp(cState.LY - lsMod.yOffset, 0, 255);
+            }
+
+            if (rsMod.xOffset != 0 || rsMod.yOffset != 0)
+            {
+                cState.RX = (byte)Math.Clamp(cState.RX - rsMod.xOffset, 0, 255);
+                cState.RY = (byte)Math.Clamp(cState.RY - rsMod.yOffset, 0, 255);
+            }
+
             double rotation = /*tempDoubleArray[device] =*/  getLSRotation(device);
             if (rotation > 0.0 || rotation < 0.0)
                 cState.rotateLSCoordinates(rotation);
@@ -1118,8 +1134,7 @@ namespace DS4Windows
                 CalcAntiSnapbackStick(device, 1, rsAntiSnapback.delta, rsAntiSnapback.timeout, cState.RX, cState.RY, out cState.RX, out cState.RY);
             }
 
-            StickDeadZoneInfo lsMod = GetLSDeadInfo(device);
-            StickDeadZoneInfo rsMod = GetRSDeadInfo(device);
+
 
             if (lsMod.fuzz > 0)
             {

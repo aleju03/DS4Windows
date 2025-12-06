@@ -599,6 +599,39 @@ namespace DS4WinWPF.DS4Control.DTOXml
             set => _rSOuterBindInvert = XmlDataUtilities.StrToBool(value);
         }
 
+        // Raw input offset to fix hardware stick drift (range: -127 to 127)
+        private int _lSCenterOffsetX = StickDeadZoneInfo.DEFAULT_X_OFFSET;
+        [XmlElement("LSCenterOffsetX")]
+        public int LSCenterOffsetX
+        {
+            get => _lSCenterOffsetX;
+            set => _lSCenterOffsetX = Math.Clamp(value, -127, 127);
+        }
+
+        private int _lSCenterOffsetY = StickDeadZoneInfo.DEFAULT_Y_OFFSET;
+        [XmlElement("LSCenterOffsetY")]
+        public int LSCenterOffsetY
+        {
+            get => _lSCenterOffsetY;
+            set => _lSCenterOffsetY = Math.Clamp(value, -127, 127);
+        }
+
+        private int _rSCenterOffsetX = StickDeadZoneInfo.DEFAULT_X_OFFSET;
+        [XmlElement("RSCenterOffsetX")]
+        public int RSCenterOffsetX
+        {
+            get => _rSCenterOffsetX;
+            set => _rSCenterOffsetX = Math.Clamp(value, -127, 127);
+        }
+
+        private int _rSCenterOffsetY = StickDeadZoneInfo.DEFAULT_Y_OFFSET;
+        [XmlElement("RSCenterOffsetY")]
+        public int RSCenterOffsetY
+        {
+            get => _rSCenterOffsetY;
+            set => _rSCenterOffsetY = Math.Clamp(value, -127, 127);
+        }
+
         [XmlElement("LSDeltaAccelSettings")]
         public StickDeltaAccelSettings LSDeltaAccelSettings
         {
@@ -1493,6 +1526,11 @@ namespace DS4WinWPF.DS4Control.DTOXml
             _lSOuterBindInvert = source.lsModInfo[deviceIndex].outerBindInvert;
             _rSOuterBindInvert = source.rsModInfo[deviceIndex].outerBindInvert;
 
+            _lSCenterOffsetX = source.lsModInfo[deviceIndex].xOffset;
+            _lSCenterOffsetY = source.lsModInfo[deviceIndex].yOffset;
+            _rSCenterOffsetX = source.rsModInfo[deviceIndex].xOffset;
+            _rSCenterOffsetY = source.rsModInfo[deviceIndex].yOffset;
+
             LSDeadZoneType = source.lsModInfo[deviceIndex].deadzoneType;
             LSAxialDeadOptions = new StickAxialDeadOptionsSerializer()
             {
@@ -1993,6 +2031,11 @@ namespace DS4WinWPF.DS4Control.DTOXml
 
             destination.lsModInfo[deviceIndex].outerBindInvert = _lSOuterBindInvert;
             destination.rsModInfo[deviceIndex].outerBindInvert = _rSOuterBindInvert;
+
+            destination.lsModInfo[deviceIndex].xOffset = _lSCenterOffsetX;
+            destination.lsModInfo[deviceIndex].yOffset = _lSCenterOffsetY;
+            destination.rsModInfo[deviceIndex].xOffset = _rSCenterOffsetX;
+            destination.rsModInfo[deviceIndex].yOffset = _rSCenterOffsetY;
 
             destination.lsModInfo[deviceIndex].deadzoneType = LSDeadZoneType;
 

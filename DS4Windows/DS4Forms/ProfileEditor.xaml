@@ -353,8 +353,12 @@
                                                     <RowDefinition Style="{StaticResource gridRowHeight}" />
                                                     <RowDefinition Style="{StaticResource gridRowHeight}" />
                                                     <RowDefinition Style="{StaticResource gridRowHeight}" />
+                                                    <RowDefinition Style="{StaticResource gridRowHeight}" />
                                                     <RowDefinition />
                                                     <RowDefinition />
+                                                    <RowDefinition Style="{StaticResource gridRowHeight}" />
+                                                    <RowDefinition Style="{StaticResource gridRowHeight}" />
+                                                    <RowDefinition Style="{StaticResource gridRowHeight}" />
                                                 </Grid.RowDefinitions>
 
                                                 <Label Content="{lex:Loc OutputCurve}" ContentStringFormat="{}{0}:" Grid.Row="0" Grid.Column="0" />
@@ -443,6 +447,27 @@
                                                        Margin="{StaticResource spaceMargin}" ToolTip="{lex:Loc StickOuterBindDeadTooltip}" DockPanel.Dock="Top" />
                                                     <CheckBox Content="Invert" IsChecked="{Binding LSOuterBindInvert}" ToolTip="{lex:Loc StickOuterBindInvertTooltip}" DockPanel.Dock="Top" HorizontalAlignment="Right" />
                                                 </DockPanel>
+
+                                                <!-- Raw Input Center Offset to fix hardware drift -->
+                                                <Label Content="Center Offset X:" Grid.Row="9" Grid.Column="0" ToolTip="Offsets the raw input to fix stick hardware drift" />
+                                                <DockPanel Grid.Row="9" Grid.Column="1">
+                                                    <TextBlock Text="units" DockPanel.Dock="Right" FontSize="10" Margin="{StaticResource spaceMargin}" VerticalAlignment="Center" />
+                                                    <xctk:IntegerUpDown x:Name="lsCenterOffsetXUD" d:IsHidden="True" Value="{Binding LSCenterOffsetX}"
+                                                       Minimum="-127" Maximum="127" Increment="1"
+                                                       Margin="{StaticResource spaceMargin}" ToolTip="X-axis offset to recenter stick at rest. Calculated as: 128 - current resting X value." />
+                                                </DockPanel>
+
+                                                <Label Content="Center Offset Y:" Grid.Row="10" Grid.Column="0" ToolTip="Offsets the raw input to fix stick hardware drift" />
+                                                <DockPanel Grid.Row="10" Grid.Column="1">
+                                                    <TextBlock Text="units" DockPanel.Dock="Right" FontSize="10" Margin="{StaticResource spaceMargin}" VerticalAlignment="Center" />
+                                                    <xctk:IntegerUpDown x:Name="lsCenterOffsetYUD" d:IsHidden="True" Value="{Binding LSCenterOffsetY}"
+                                                       Minimum="-127" Maximum="127" Increment="1"
+                                                       Margin="{StaticResource spaceMargin}" ToolTip="Y-axis offset to recenter stick at rest. Calculated as: 128 - current resting Y value." />
+                                                </DockPanel>
+
+                                                <Label Content="Calibrate:" Grid.Row="11" Grid.Column="0" />
+                                                <Button x:Name="lsCalibrateBtn" Content="Calibrate Now" Grid.Row="11" Grid.Column="1" Click="LSCalibrateBtn_Click"
+                                                        Margin="{StaticResource spaceMargin}" ToolTip="Click while stick is at rest position to auto-detect and correct drift" />
                                             </Grid>
 
                                             <GroupBox Header="{lex:Loc DeltaAcceleration}" DockPanel.Dock="Top">
@@ -640,8 +665,12 @@
                                                     <RowDefinition Style="{StaticResource gridRowHeight}" />
                                                     <RowDefinition Style="{StaticResource gridRowHeight}" />
                                                     <RowDefinition Style="{StaticResource gridRowHeight}" />
+                                                    <RowDefinition Style="{StaticResource gridRowHeight}" />
                                                     <RowDefinition />
                                                     <RowDefinition />
+                                                    <RowDefinition Style="{StaticResource gridRowHeight}" />
+                                                    <RowDefinition Style="{StaticResource gridRowHeight}" />
+                                                    <RowDefinition Style="{StaticResource gridRowHeight}" />
                                                 </Grid.RowDefinitions>
 
                                                 <Label Content="{lex:Loc OutputCurve}" ContentStringFormat="{}{0}:" Grid.Row="0" Grid.Column="0" />
@@ -730,6 +759,27 @@
                                                        Margin="{StaticResource spaceMargin}" ToolTip="{lex:Loc StickOuterBindDeadTooltip}"  DockPanel.Dock="Top" />
                                                     <CheckBox Content="Invert" IsChecked="{Binding RSOuterBindInvert}" ToolTip="{lex:Loc StickOuterBindInvertTooltip}" DockPanel.Dock="Top" HorizontalAlignment="Right" />
                                                 </DockPanel>
+
+                                                <!-- Raw Input Center Offset to fix hardware drift -->
+                                                <Label Content="Center Offset X:" Grid.Row="9" Grid.Column="0" ToolTip="Offsets the raw input to fix stick hardware drift" />
+                                                <DockPanel Grid.Row="9" Grid.Column="1">
+                                                    <TextBlock Text="units" DockPanel.Dock="Right" FontSize="10" Margin="{StaticResource spaceMargin}" VerticalAlignment="Center" />
+                                                    <xctk:IntegerUpDown x:Name="rsCenterOffsetXUD" d:IsHidden="True" Value="{Binding RSCenterOffsetX}"
+                                                       Minimum="-127" Maximum="127" Increment="1"
+                                                       Margin="{StaticResource spaceMargin}" ToolTip="X-axis offset to recenter stick at rest. Calculated as: 128 - current resting X value." />
+                                                </DockPanel>
+
+                                                <Label Content="Center Offset Y:" Grid.Row="10" Grid.Column="0" ToolTip="Offsets the raw input to fix stick hardware drift" />
+                                                <DockPanel Grid.Row="10" Grid.Column="1">
+                                                    <TextBlock Text="units" DockPanel.Dock="Right" FontSize="10" Margin="{StaticResource spaceMargin}" VerticalAlignment="Center" />
+                                                    <xctk:IntegerUpDown x:Name="rsCenterOffsetYUD" d:IsHidden="True" Value="{Binding RSCenterOffsetY}"
+                                                       Minimum="-127" Maximum="127" Increment="1"
+                                                       Margin="{StaticResource spaceMargin}" ToolTip="Y-axis offset to recenter stick at rest. Calculated as: 128 - current resting Y value." />
+                                                </DockPanel>
+
+                                                <Label Content="Calibrate:" Grid.Row="11" Grid.Column="0" />
+                                                <Button x:Name="rsCalibrateBtn" Content="Calibrate Now" Grid.Row="11" Grid.Column="1" Click="RSCalibrateBtn_Click"
+                                                        Margin="{StaticResource spaceMargin}" ToolTip="Click while stick is at rest position to auto-detect and correct drift" />
                                             </Grid>
 
                                             <GroupBox Header="{lex:Loc DeltaAcceleration}" DockPanel.Dock="Top">

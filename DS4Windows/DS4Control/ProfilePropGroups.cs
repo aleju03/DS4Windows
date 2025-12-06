@@ -60,6 +60,10 @@ namespace DS4Windows
         public const double DEFAULT_OUTER_BIND_DEAD = 75.0;
         public const bool DEFAULT_OUTER_BIND_INVERT = false;
 
+        // Raw input offset to fix hardware stick drift (range: -127 to 127)
+        public const int DEFAULT_X_OFFSET = 0;
+        public const int DEFAULT_Y_OFFSET = 0;
+
         public class AxisDeadZoneInfo
         {
             // DeadZone value from 0-127 (old bad convention)
@@ -88,6 +92,11 @@ namespace DS4Windows
         public DeadZoneType deadzoneType = DEFAULT_DEADZONE_TYPE;
         public double outerBindDeadZone = DEFAULT_OUTER_BIND_DEAD;
         public bool outerBindInvert = DEFAULT_OUTER_BIND_INVERT;
+
+        // Raw input offset to fix hardware stick drift. Applied before all other processing.
+        public int xOffset = DEFAULT_X_OFFSET;
+        public int yOffset = DEFAULT_Y_OFFSET;
+
         public AxisDeadZoneInfo xAxisDeadInfo = new AxisDeadZoneInfo();
         public AxisDeadZoneInfo yAxisDeadInfo = new AxisDeadZoneInfo();
 
@@ -104,6 +113,8 @@ namespace DS4Windows
             deadzoneType = DEFAULT_DEADZONE_TYPE;
             outerBindDeadZone = DEFAULT_OUTER_BIND_DEAD;
             outerBindInvert = DEFAULT_OUTER_BIND_INVERT;
+            xOffset = DEFAULT_X_OFFSET;
+            yOffset = DEFAULT_Y_OFFSET;
             xAxisDeadInfo.Reset();
             yAxisDeadInfo.Reset();
         }

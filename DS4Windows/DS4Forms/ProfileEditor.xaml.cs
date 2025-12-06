@@ -1691,6 +1691,51 @@ namespace DS4WinWPF.DS4Forms
             mpControl.UpdateMappingName();
             Global.CacheProfileCustomsFlags(profileSettingsVM.Device);
         }
+
+        private void LSCalibrateBtn_Click(object sender, RoutedEventArgs e)
+        {
+            int funcDeviceNum = profileSettingsVM.FuncDevNum;
+            if (funcDeviceNum < ControlService.CURRENT_DS4_CONTROLLER_LIMIT)
+            {
+                DS4State currentState = App.rootHub.getDS4State(funcDeviceNum);
+                if (currentState != null)
+                {
+                    // Calculate offset as difference from center (128)
+                    // Offset = 128 - rawValue means: if rawValue=124, offset=4 (adds 4 to bring to 128)
+                    int xOffset = 128 - currentState.LX;
+                    int yOffset = 128 - currentState.LY;
+                    
+                    profileSettingsVM.LSCenterOffsetX = xOffset;
+                    profileSettingsVM.LSCenterOffsetY = yOffset;
+                    
+                    // Update UI bindings
+                    lsCenterOffsetXUD.Value = xOffset;
+                    lsCenterOffsetYUD.Value = yOffset;
+                }
+            }
+        }
+
+        private void RSCalibrateBtn_Click(object sender, RoutedEventArgs e)
+        {
+            int funcDeviceNum = profileSettingsVM.FuncDevNum;
+            if (funcDeviceNum < ControlService.CURRENT_DS4_CONTROLLER_LIMIT)
+            {
+                DS4State currentState = App.rootHub.getDS4State(funcDeviceNum);
+                if (currentState != null)
+                {
+                    // Calculate offset as difference from center (128)
+                    int xOffset = 128 - currentState.RX;
+                    int yOffset = 128 - currentState.RY;
+                    
+                    profileSettingsVM.RSCenterOffsetX = xOffset;
+                    profileSettingsVM.RSCenterOffsetY = yOffset;
+                    
+                    // Update UI bindings
+                    rsCenterOffsetXUD.Value = xOffset;
+                    rsCenterOffsetYUD.Value = yOffset;
+                }
+            }
+        }
     }
 
     public class ResourcePaths
