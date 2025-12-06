@@ -1103,14 +1103,14 @@ namespace DS4Windows
 
             if (lsMod.xOffset != 0 || lsMod.yOffset != 0)
             {
-                cState.LX = (byte)Math.Clamp(cState.LX - lsMod.xOffset, 0, 255);
-                cState.LY = (byte)Math.Clamp(cState.LY - lsMod.yOffset, 0, 255);
+                cState.LX = (byte)Math.Clamp(cState.LX + lsMod.xOffset, 0, 255);
+                cState.LY = (byte)Math.Clamp(cState.LY + lsMod.yOffset, 0, 255);
             }
 
             if (rsMod.xOffset != 0 || rsMod.yOffset != 0)
             {
-                cState.RX = (byte)Math.Clamp(cState.RX - rsMod.xOffset, 0, 255);
-                cState.RY = (byte)Math.Clamp(cState.RY - rsMod.yOffset, 0, 255);
+                cState.RX = (byte)Math.Clamp(cState.RX + rsMod.xOffset, 0, 255);
+                cState.RY = (byte)Math.Clamp(cState.RY + rsMod.yOffset, 0, 255);
             }
 
             double rotation = /*tempDoubleArray[device] =*/  getLSRotation(device);
