@@ -1380,6 +1380,103 @@ namespace DS4Windows
                     }
                 }
             }
+            else if (lsMod.deadzoneType == StickDeadZoneInfo.DeadZoneType.Cross)
+            {
+                // Cross deadzone: apply independent X/Y dead bands, then use radial output when outside bands
+                ref StickDeadZoneInfo.AxisDeadZoneInfo xAxisDeadInfo = ref lsMod.xAxisDeadInfo;
+                ref StickDeadZoneInfo.AxisDeadZoneInfo yAxisDeadInfo = ref lsMod.yAxisDeadInfo;
+
+                int distValX = Math.Abs(cState.LX - 128);
+                int distValY = Math.Abs(cState.LY - 128);
+
+                // Check if within X or Y dead bands (the "cross" shape)
+                bool inXDeadBand = xAxisDeadInfo.deadZone > 0 && distValX <= xAxisDeadInfo.deadZone;
+                bool inYDeadBand = yAxisDeadInfo.deadZone > 0 && distValY <= yAxisDeadInfo.deadZone;
+
+                // If in X dead band, zero out X; if in Y dead band, zero out Y
+                if (inXDeadBand)
+                {
+                    dState.LX = 128;
+                }
+                if (inYDeadBand)
+                {
+                    dState.LY = 128;
+                }
+
+                // If outside both dead bands, apply radial output scaling
+                if (!inXDeadBand && !inYDeadBand)
+                {
+                    // Use radial calculation similar to Radial mode
+                    double lsSquared = Math.Pow(cState.LX - 128f, 2) + Math.Pow(cState.LY - 128f, 2);
+                    int lsAntiDead = lsMod.antiDeadZone;
+                    int lsMaxZone = lsMod.maxZone;
+                    double lsMaxOutput = lsMod.maxOutput;
+                    double lsVerticalScale = lsMod.verticalScale;
+                    bool interpret = lsAntiDead > 0 || lsMaxZone != 100 || lsMaxOutput != 100.0 || lsMod.maxOutputForce || lsVerticalScale != StickDeadZoneInfo.DEFAULT_VERTICAL_SCALE;
+
+                    if (interpret)
+                    {
+                        double r = Math.Atan2(-(dState.LY - 128.0), (dState.LX - 128.0));
+                        double maxXValue = dState.LX >= 128.0 ? 127.0 : -128;
+                        double maxYValue = dState.LY >= 128.0 ? 127.0 : -128;
+                        double ratio = lsMaxZone / 100.0;
+                        double maxOutRatio = lsMaxOutput / 100.0;
+                        double verticalScale = lsVerticalScale / 100.0;
+
+                        double maxZoneXNegValue = (ratio * -128) + 128;
+                        double maxZoneXPosValue = (ratio * 127) + 128;
+                        double maxZoneYNegValue = maxZoneXNegValue;
+                        double maxZoneYPosValue = maxZoneXPosValue;
+                        double maxZoneX = dState.LX >= 128.0 ? (maxZoneXPosValue - 128.0) : (maxZoneXNegValue - 128.0);
+                        double maxZoneY = dState.LY >= 128.0 ? (maxZoneYPosValue - 128.0) : (maxZoneYNegValue - 128.0);
+
+                        double currentX = Global.Clamp(maxZoneXNegValue, dState.LX, maxZoneXPosValue);
+                        double currentY = Global.Clamp(maxZoneYNegValue, dState.LY, maxZoneYPosValue);
+                        double tempOutputX = (currentX - 128.0) / maxZoneX;
+                        double tempOutputY = (currentY - 128.0) / maxZoneY;
+
+                        if (lsVerticalScale != StickDeadZoneInfo.DEFAULT_VERTICAL_SCALE)
+                        {
+                            tempOutputY = Math.Min(Math.Max(tempOutputY * verticalScale, 0.0), 1.0);
+                        }
+
+                        if (lsMaxOutput != 100.0 || lsMod.maxOutputForce)
+                        {
+                            double maxOutXRatio = Math.Abs(Math.Cos(r)) * maxOutRatio;
+                            maxOutXRatio = Math.Min(maxOutXRatio / 0.99, 1.0);
+                            double maxOutYRatio = Math.Abs(Math.Sin(r)) * maxOutRatio;
+                            maxOutYRatio = Math.Min(maxOutYRatio / 0.99, 1.0);
+                            tempOutputX = Math.Min(Math.Max(tempOutputX, 0.0), maxOutXRatio);
+                            tempOutputY = Math.Min(Math.Max(tempOutputY, 0.0), maxOutYRatio);
+                        }
+
+                        double tempLsXAntiDeadPercent = 0.0, tempLsYAntiDeadPercent = 0.0;
+                        if (lsAntiDead > 0)
+                        {
+                            tempLsXAntiDeadPercent = (lsAntiDead * 0.01) * Math.Abs(Math.Cos(r));
+                            tempLsYAntiDeadPercent = (lsAntiDead * 0.01) * Math.Abs(Math.Sin(r));
+                        }
+
+                        if (tempOutputX > 0.0)
+                        {
+                            dState.LX = (byte)((((1.0 - tempLsXAntiDeadPercent) * tempOutputX + tempLsXAntiDeadPercent)) * maxXValue + 128.0);
+                        }
+                        else
+                        {
+                            dState.LX = 128;
+                        }
+
+                        if (tempOutputY > 0.0)
+                        {
+                            dState.LY = (byte)((((1.0 - tempLsYAntiDeadPercent) * tempOutputY + tempLsYAntiDeadPercent)) * maxYValue + 128.0);
+                        }
+                        else
+                        {
+                            dState.LY = 128;
+                        }
+                    }
+                }
+            }
 
 
             if (rsMod.deadzoneType == StickDeadZoneInfo.DeadZoneType.Radial)
@@ -1607,6 +1704,103 @@ namespace DS4Windows
                         if (tempOutput > 0.0)
                         {
                             dState.RY = (byte)((((1.0 - tempAntiDeadPercent) * tempOutput + tempAntiDeadPercent)) * maxAxisValue + 128.0);
+                        }
+                        else
+                        {
+                            dState.RY = 128;
+                        }
+                    }
+                }
+            }
+            else if (rsMod.deadzoneType == StickDeadZoneInfo.DeadZoneType.Cross)
+            {
+                // Cross deadzone: apply independent X/Y dead bands, then use radial output when outside bands
+                ref StickDeadZoneInfo.AxisDeadZoneInfo xAxisDeadInfo = ref rsMod.xAxisDeadInfo;
+                ref StickDeadZoneInfo.AxisDeadZoneInfo yAxisDeadInfo = ref rsMod.yAxisDeadInfo;
+
+                int distValX = Math.Abs(cState.RX - 128);
+                int distValY = Math.Abs(cState.RY - 128);
+
+                // Check if within X or Y dead bands (the "cross" shape)
+                bool inXDeadBand = xAxisDeadInfo.deadZone > 0 && distValX <= xAxisDeadInfo.deadZone;
+                bool inYDeadBand = yAxisDeadInfo.deadZone > 0 && distValY <= yAxisDeadInfo.deadZone;
+
+                // If in X dead band, zero out X; if in Y dead band, zero out Y
+                if (inXDeadBand)
+                {
+                    dState.RX = 128;
+                }
+                if (inYDeadBand)
+                {
+                    dState.RY = 128;
+                }
+
+                // If outside both dead bands, apply radial output scaling
+                if (!inXDeadBand && !inYDeadBand)
+                {
+                    // Use radial calculation similar to Radial mode
+                    double rsSquared = Math.Pow(cState.RX - 128f, 2) + Math.Pow(cState.RY - 128f, 2);
+                    int rsAntiDead = rsMod.antiDeadZone;
+                    int rsMaxZone = rsMod.maxZone;
+                    double rsMaxOutput = rsMod.maxOutput;
+                    double rsVerticalScale = rsMod.verticalScale;
+                    bool interpret = rsAntiDead > 0 || rsMaxZone != 100 || rsMaxOutput != 100.0 || rsMod.maxOutputForce || rsVerticalScale != StickDeadZoneInfo.DEFAULT_VERTICAL_SCALE;
+
+                    if (interpret)
+                    {
+                        double r = Math.Atan2(-(dState.RY - 128.0), (dState.RX - 128.0));
+                        double maxXValue = dState.RX >= 128.0 ? 127.0 : -128;
+                        double maxYValue = dState.RY >= 128.0 ? 127.0 : -128;
+                        double ratio = rsMaxZone / 100.0;
+                        double maxOutRatio = rsMaxOutput / 100.0;
+                        double verticalScale = rsVerticalScale / 100.0;
+
+                        double maxZoneXNegValue = (ratio * -128) + 128;
+                        double maxZoneXPosValue = (ratio * 127) + 128;
+                        double maxZoneYNegValue = maxZoneXNegValue;
+                        double maxZoneYPosValue = maxZoneXPosValue;
+                        double maxZoneX = dState.RX >= 128.0 ? (maxZoneXPosValue - 128.0) : (maxZoneXNegValue - 128.0);
+                        double maxZoneY = dState.RY >= 128.0 ? (maxZoneYPosValue - 128.0) : (maxZoneYNegValue - 128.0);
+
+                        double currentX = Global.Clamp(maxZoneXNegValue, dState.RX, maxZoneXPosValue);
+                        double currentY = Global.Clamp(maxZoneYNegValue, dState.RY, maxZoneYPosValue);
+                        double tempOutputX = (currentX - 128.0) / maxZoneX;
+                        double tempOutputY = (currentY - 128.0) / maxZoneY;
+
+                        if (rsVerticalScale != StickDeadZoneInfo.DEFAULT_VERTICAL_SCALE)
+                        {
+                            tempOutputY = Math.Min(Math.Max(tempOutputY * verticalScale, 0.0), 1.0);
+                        }
+
+                        if (rsMaxOutput != 100.0 || rsMod.maxOutputForce)
+                        {
+                            double maxOutXRatio = Math.Abs(Math.Cos(r)) * maxOutRatio;
+                            maxOutXRatio = Math.Min(maxOutXRatio / 0.99, 1.0);
+                            double maxOutYRatio = Math.Abs(Math.Sin(r)) * maxOutRatio;
+                            maxOutYRatio = Math.Min(maxOutYRatio / 0.99, 1.0);
+                            tempOutputX = Math.Min(Math.Max(tempOutputX, 0.0), maxOutXRatio);
+                            tempOutputY = Math.Min(Math.Max(tempOutputY, 0.0), maxOutYRatio);
+                        }
+
+                        double tempRsXAntiDeadPercent = 0.0, tempRsYAntiDeadPercent = 0.0;
+                        if (rsAntiDead > 0)
+                        {
+                            tempRsXAntiDeadPercent = (rsAntiDead * 0.01) * Math.Abs(Math.Cos(r));
+                            tempRsYAntiDeadPercent = (rsAntiDead * 0.01) * Math.Abs(Math.Sin(r));
+                        }
+
+                        if (tempOutputX > 0.0)
+                        {
+                            dState.RX = (byte)((((1.0 - tempRsXAntiDeadPercent) * tempOutputX + tempRsXAntiDeadPercent)) * maxXValue + 128.0);
+                        }
+                        else
+                        {
+                            dState.RX = 128;
+                        }
+
+                        if (tempOutputY > 0.0)
+                        {
+                            dState.RY = (byte)((((1.0 - tempRsYAntiDeadPercent) * tempOutputY + tempRsYAntiDeadPercent)) * maxYValue + 128.0);
                         }
                         else
                         {

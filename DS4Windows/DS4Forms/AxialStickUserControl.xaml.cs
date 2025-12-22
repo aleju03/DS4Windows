@@ -42,11 +42,64 @@ namespace DS4WinWPF.DS4Forms
         public void UseDevice(StickDeadZoneInfo stickDeadInfo)
         {
             axialVM = new AxialStickControlViewModel(stickDeadInfo);
+
+            // Subscribe to events using existing delegates if possible, or new ones
+            // Assuming AxialStickControlViewModel has DeadZoneXChanged/DeadZoneYChanged events as public events
+            if (axialVM != null)
+            {
+                axialVM.DeadZoneXChanged += AxialVM_DeadZoneXChanged;
+                axialVM.DeadZoneYChanged += AxialVM_DeadZoneYChanged;
+            }
+
             mainGrid.DataContext = axialVM;
+            UpdateVisuals();
+        }
+
+        private void AxialVM_DeadZoneXChanged(object sender, EventArgs e)
+        {
+            UpdateVisuals();
+        }
+
+        private void AxialVM_DeadZoneYChanged(object sender, EventArgs e)
+        {
+            UpdateVisuals();
+        }
+
+        private void UpdateVisuals()
+        {
+            if (axialVM == null) return;
+
+            // Canvas is 100x100
+            double width = axialVM.DeadZoneX * 100.0;
+            double height = axialVM.DeadZoneY * 100.0;
+
+            // Clamp values
+            width = Math.Max(0, Math.Min(100, width));
+            height = Math.Max(0, Math.Min(100, height));
+
+            // X Band (Vertical) - Width is deadzone X
+            visualDeadX.Width = width;
+            Canvas.SetLeft(visualDeadX, 50.0 - (width / 2.0));
+
+            // Y Band (Horizontal) - Height is deadzone Y
+            visualDeadY.Height = height;
+            Canvas.SetTop(visualDeadY, 50.0 - (height / 2.0));
+
+            // Center (Red)
+            visualDeadCenter.Width = width;
+            visualDeadCenter.Height = height;
+            Canvas.SetLeft(visualDeadCenter, 50.0 - (width / 2.0));
+            Canvas.SetTop(visualDeadCenter, 50.0 - (height / 2.0));
         }
 
         public void UnregisterDataContext()
         {
+            // Unsubscribe if needed, though VM is usually discarded
+            if (axialVM != null)
+            {
+                axialVM.DeadZoneXChanged -= AxialVM_DeadZoneXChanged;
+                axialVM.DeadZoneYChanged -= AxialVM_DeadZoneYChanged;
+            }
             mainGrid.DataContext = null;
         }
     }

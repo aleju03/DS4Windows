@@ -56,6 +56,8 @@ namespace DS4WinWPF.DS4Forms
         private double lsDeadY;
         private double rsDeadX;
         private double rsDeadY;
+        private StickDeadZoneInfo.DeadZoneType lsDeadzoneType = StickDeadZoneInfo.DeadZoneType.Radial;
+        private StickDeadZoneInfo.DeadZoneType rsDeadzoneType = StickDeadZoneInfo.DeadZoneType.Radial;
 
         private double sixAxisXDead;
         private double sixAxisZDead;
@@ -105,6 +107,30 @@ namespace DS4WinWPF.DS4Forms
             }
         }
         public event EventHandler RsDeadYChanged;
+
+        public StickDeadZoneInfo.DeadZoneType LsDeadzoneType
+        {
+            get => lsDeadzoneType;
+            set
+            {
+                if (lsDeadzoneType == value) return;
+                lsDeadzoneType = value;
+                LsDeadzoneTypeChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        public event EventHandler LsDeadzoneTypeChanged;
+
+        public StickDeadZoneInfo.DeadZoneType RsDeadzoneType
+        {
+            get => rsDeadzoneType;
+            set
+            {
+                if (rsDeadzoneType == value) return;
+                rsDeadzoneType = value;
+                RsDeadzoneTypeChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        public event EventHandler RsDeadzoneTypeChanged;
 
         public double SixAxisXDead
         {
@@ -176,6 +202,8 @@ namespace DS4WinWPF.DS4Forms
 
             SixAxisDeadXChanged += ChangeSixAxisDeadControls;
             SixAxisDeadZChanged += ChangeSixAxisDeadControls;
+            LsDeadzoneTypeChanged += ChangeLsDeadControls;
+            RsDeadzoneTypeChanged += ChangeRsDeadControls;
             DeviceNumChanged += ControllerReadingsControl_DeviceNumChanged;
         }
 
@@ -194,18 +222,96 @@ namespace DS4WinWPF.DS4Forms
 
         private void ChangeRsDeadControls(object sender, EventArgs e)
         {
-            rsDeadEllipse.Width = rsDeadX * CANVAS_WIDTH;
-            rsDeadEllipse.Height = rsDeadY * CANVAS_WIDTH;
-            Canvas.SetLeft(rsDeadEllipse, CANVAS_MIDPOINT - (rsDeadX * CANVAS_WIDTH / 2.0));
-            Canvas.SetTop(rsDeadEllipse, CANVAS_MIDPOINT - (rsDeadY * CANVAS_WIDTH / 2.0));
+            if (rsDeadzoneType == StickDeadZoneInfo.DeadZoneType.Cross)
+            {
+                // Hide ellipse, show Cross visualization elements
+                rsDeadEllipse.Visibility = Visibility.Collapsed;
+                rsCrossActiveArea.Visibility = Visibility.Collapsed; // User requested to hide green backgound
+                rsCrossDeadX.Visibility = Visibility.Visible;
+                rsCrossDeadY.Visibility = Visibility.Visible;
+                rsCrossCenter.Visibility = Visibility.Visible;
+
+                // X band: vertical bar (kills X axis when stick is near vertical center)
+                double xBandWidth = rsDeadX * CANVAS_WIDTH;
+                rsCrossDeadX.Width = xBandWidth;
+                rsCrossDeadX.Height = CANVAS_WIDTH;
+                Canvas.SetLeft(rsCrossDeadX, CANVAS_MIDPOINT - xBandWidth / 2.0);
+                Canvas.SetTop(rsCrossDeadX, 0);
+
+                // Y band: horizontal bar (kills Y axis when stick is near horizontal center)
+                double yBandHeight = rsDeadY * CANVAS_WIDTH;
+                rsCrossDeadY.Width = CANVAS_WIDTH;
+                rsCrossDeadY.Height = yBandHeight;
+                Canvas.SetLeft(rsCrossDeadY, 0);
+                Canvas.SetTop(rsCrossDeadY, CANVAS_MIDPOINT - yBandHeight / 2.0);
+
+                // Center red square where bands intersect
+                rsCrossCenter.Width = xBandWidth;
+                rsCrossCenter.Height = yBandHeight;
+                Canvas.SetLeft(rsCrossCenter, CANVAS_MIDPOINT - xBandWidth / 2.0);
+                Canvas.SetTop(rsCrossCenter, CANVAS_MIDPOINT - yBandHeight / 2.0);
+            }
+            else
+            {
+                // Show ellipse, hide Cross visualization elements
+                rsDeadEllipse.Visibility = Visibility.Visible;
+                rsCrossActiveArea.Visibility = Visibility.Collapsed;
+                rsCrossDeadX.Visibility = Visibility.Collapsed;
+                rsCrossDeadY.Visibility = Visibility.Collapsed;
+                rsCrossCenter.Visibility = Visibility.Collapsed;
+
+                rsDeadEllipse.Width = rsDeadX * CANVAS_WIDTH;
+                rsDeadEllipse.Height = rsDeadY * CANVAS_WIDTH;
+                Canvas.SetLeft(rsDeadEllipse, CANVAS_MIDPOINT - (rsDeadX * CANVAS_WIDTH / 2.0));
+                Canvas.SetTop(rsDeadEllipse, CANVAS_MIDPOINT - (rsDeadY * CANVAS_WIDTH / 2.0));
+            }
         }
 
         private void ChangeLsDeadControls(object sender, EventArgs e)
         {
-            lsDeadEllipse.Width = lsDeadX * CANVAS_WIDTH;
-            lsDeadEllipse.Height = lsDeadY * CANVAS_WIDTH;
-            Canvas.SetLeft(lsDeadEllipse, CANVAS_MIDPOINT - (lsDeadX * CANVAS_WIDTH / 2.0));
-            Canvas.SetTop(lsDeadEllipse, CANVAS_MIDPOINT - (lsDeadY * CANVAS_WIDTH / 2.0));
+            if (lsDeadzoneType == StickDeadZoneInfo.DeadZoneType.Cross)
+            {
+                // Hide ellipse, show Cross visualization elements
+                lsDeadEllipse.Visibility = Visibility.Collapsed;
+                lsCrossActiveArea.Visibility = Visibility.Collapsed; // User requested to hide green backgound
+                lsCrossDeadX.Visibility = Visibility.Visible;
+                lsCrossDeadY.Visibility = Visibility.Visible;
+                lsCrossCenter.Visibility = Visibility.Visible;
+
+                // X band: vertical bar (kills X axis when stick is near vertical center)
+                double xBandWidth = lsDeadX * CANVAS_WIDTH;
+                lsCrossDeadX.Width = xBandWidth;
+                lsCrossDeadX.Height = CANVAS_WIDTH;
+                Canvas.SetLeft(lsCrossDeadX, CANVAS_MIDPOINT - xBandWidth / 2.0);
+                Canvas.SetTop(lsCrossDeadX, 0);
+
+                // Y band: horizontal bar (kills Y axis when stick is near horizontal center)
+                double yBandHeight = lsDeadY * CANVAS_WIDTH;
+                lsCrossDeadY.Width = CANVAS_WIDTH;
+                lsCrossDeadY.Height = yBandHeight;
+                Canvas.SetLeft(lsCrossDeadY, 0);
+                Canvas.SetTop(lsCrossDeadY, CANVAS_MIDPOINT - yBandHeight / 2.0);
+
+                // Center red square where bands intersect
+                lsCrossCenter.Width = xBandWidth;
+                lsCrossCenter.Height = yBandHeight;
+                Canvas.SetLeft(lsCrossCenter, CANVAS_MIDPOINT - xBandWidth / 2.0);
+                Canvas.SetTop(lsCrossCenter, CANVAS_MIDPOINT - yBandHeight / 2.0);
+            }
+            else
+            {
+                // Show ellipse, hide Cross visualization elements
+                lsDeadEllipse.Visibility = Visibility.Visible;
+                lsCrossActiveArea.Visibility = Visibility.Collapsed;
+                lsCrossDeadX.Visibility = Visibility.Collapsed;
+                lsCrossDeadY.Visibility = Visibility.Collapsed;
+                lsCrossCenter.Visibility = Visibility.Collapsed;
+
+                lsDeadEllipse.Width = lsDeadX * CANVAS_WIDTH;
+                lsDeadEllipse.Height = lsDeadY * CANVAS_WIDTH;
+                Canvas.SetLeft(lsDeadEllipse, CANVAS_MIDPOINT - (lsDeadX * CANVAS_WIDTH / 2.0));
+                Canvas.SetTop(lsDeadEllipse, CANVAS_MIDPOINT - (lsDeadY * CANVAS_WIDTH / 2.0));
+            }
         }
 
         public void UseDevice(int index, int profileDevIdx)

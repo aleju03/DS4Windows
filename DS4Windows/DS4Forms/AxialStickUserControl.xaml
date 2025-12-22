@@ -19,7 +19,8 @@
             </Style>
         </Grid.Resources>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
             <ColumnDefinition />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
@@ -32,31 +33,38 @@
             <RowDefinition Style="{StaticResource gridRowHeight}" />
         </Grid.RowDefinitions>
 
-        <TextBlock Text="X" Grid.Column="1" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,8" />
-        <TextBlock Text="Y" Grid.Column="2"  FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,8" />
+        <!-- Visualization Column -->
+        <Border Grid.Column="0" Grid.Row="0" Grid.RowSpan="5" Margin="0,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Center" BorderBrush="{DynamicResource ForegroundColor}" BorderThickness="1">
+             <Canvas x:Name="deadzoneCanvas" Width="100" Height="100" ClipToBounds="True" Background="Transparent">
+                  <!-- Green Active Area -->
+                  <Ellipse Width="100" Height="100" Fill="#AA1FCF1F" />
+                  <!-- Yellow Y Band (Horizontal) -->
+                  <Rectangle x:Name="visualDeadY" Fill="#DDCFCF1F" Width="100" Height="0" Canvas.Top="50" Canvas.Left="0" />
+                  <!-- Yellow X Band (Vertical) -->
+                  <Rectangle x:Name="visualDeadX" Fill="#DDCFCF1F" Width="0" Height="100" Canvas.Top="0" Canvas.Left="50" />
+                  <!-- Red Center -->
+                  <Rectangle x:Name="visualDeadCenter" Fill="#FFCF1F1F" Width="0" Height="0" Canvas.Top="50" Canvas.Left="50" />
+             </Canvas>
+        </Border>
 
-        <Label Content="{lex:Loc DeadZone}" ContentStringFormat="{}{0}:" Grid.Row="1" Grid.Column="0" />
-        <xctk:DoubleUpDown d:IsHidden="True" Value="{Binding DeadZoneX,UpdateSourceTrigger=LostFocus}" FormatString="F2" MinWidth="50" Grid.Row="1" Grid.Column="1" Maximum="1.0" Minimum="0.0" Increment="0.1"
-                                                   Margin="{StaticResource spaceMargin}" />
-        <xctk:DoubleUpDown d:IsHidden="True" Value="{Binding DeadZoneY,UpdateSourceTrigger=LostFocus}" FormatString="F2" MinWidth="50" Grid.Row="1" Grid.Column="2" Maximum="1.0" Minimum="0.0" Increment="0.1"
-                                                   Margin="{StaticResource spaceMargin}" />
+        <!-- Labels and Controls -->
+        <TextBlock Text="X" Grid.Column="2" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,8" />
+        <TextBlock Text="Y" Grid.Column="3"  FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,8" />
 
-        <Label Content="{lex:Loc MaxZone}" ContentStringFormat="{}{0}:" Grid.Row="2" Grid.Column="0" />
-        <xctk:DoubleUpDown d:IsHidden="True" Value="{Binding MaxZoneX}" FormatString="F2" MinWidth="50" Grid.Row="2" Grid.Column="1" Maximum="1.0" Minimum="0.0" Increment="0.1"
-                                                   Margin="{StaticResource spaceMargin}" />
-        <xctk:DoubleUpDown d:IsHidden="True" Value="{Binding MaxZoneY}" FormatString="F2" MinWidth="50" Grid.Row="2" Grid.Column="2" Maximum="1.0" Minimum="0.0" Increment="0.1"
-                                                   Margin="{StaticResource spaceMargin}" />
+        <Label Content="{lex:Loc DeadZone}" ContentStringFormat="{}{0}:" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" />
+        <xctk:DoubleUpDown d:IsHidden="True" Value="{Binding DeadZoneX,UpdateSourceTrigger=PropertyChanged}" FormatString="F2" MinWidth="50" Grid.Row="1" Grid.Column="2" Maximum="1.0" Minimum="0.0" Increment="0.01" Margin="{StaticResource spaceMargin}" />
+        <xctk:DoubleUpDown d:IsHidden="True" Value="{Binding DeadZoneY,UpdateSourceTrigger=PropertyChanged}" FormatString="F2" MinWidth="50" Grid.Row="1" Grid.Column="3" Maximum="1.0" Minimum="0.0" Increment="0.01" Margin="{StaticResource spaceMargin}" />
 
-        <Label Content="{lex:Loc AntiDeadZone}" ContentStringFormat="{}{0}:" Grid.Row="3" Grid.Column="0" />
-        <xctk:DoubleUpDown d:IsHidden="True" Value="{Binding AntiDeadZoneX}" FormatString="F2" MinWidth="50" Grid.Row="3" Grid.Column="1" Maximum="1.0" Minimum="0.0" Increment="0.1"
-                                                   Margin="{StaticResource spaceMargin}" />
-        <xctk:DoubleUpDown d:IsHidden="True" Value="{Binding AntiDeadZoneY}" FormatString="F2" MinWidth="50" Grid.Row="3" Grid.Column="2" Maximum="1.0" Minimum="0.0" Increment="0.1"
-                                                   Margin="{StaticResource spaceMargin}" />
+        <Label Content="{lex:Loc MaxZone}" ContentStringFormat="{}{0}:" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" />
+        <xctk:DoubleUpDown d:IsHidden="True" Value="{Binding MaxZoneX,UpdateSourceTrigger=PropertyChanged}" FormatString="F2" MinWidth="50" Grid.Row="2" Grid.Column="2" Maximum="1.0" Minimum="0.0" Increment="0.01" Margin="{StaticResource spaceMargin}" />
+        <xctk:DoubleUpDown d:IsHidden="True" Value="{Binding MaxZoneY,UpdateSourceTrigger=PropertyChanged}" FormatString="F2" MinWidth="50" Grid.Row="2" Grid.Column="3" Maximum="1.0" Minimum="0.0" Increment="0.01" Margin="{StaticResource spaceMargin}" />
 
-        <Label Content="{lex:Loc MaxOutput}" ContentStringFormat="{}{0}:" Grid.Row="4" Grid.Column="0" />
-        <xctk:DoubleUpDown d:IsHidden="True" Value="{Binding MaxOutputX}" FormatString="F2" MinWidth="50" Grid.Row="4" Grid.Column="1" Maximum="1.0" Minimum="0.0" Increment="0.1"
-                                                   Margin="{StaticResource spaceMargin}" />
-        <xctk:DoubleUpDown d:IsHidden="True" Value="{Binding MaxOutputY}" FormatString="F2" MinWidth="50" Grid.Row="4" Grid.Column="2" Maximum="1.0" Minimum="0.0" Increment="0.1"
-                                                   Margin="{StaticResource spaceMargin}" />
+        <Label Content="{lex:Loc AntiDeadZone}" ContentStringFormat="{}{0}:" Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" />
+        <xctk:DoubleUpDown d:IsHidden="True" Value="{Binding AntiDeadZoneX,UpdateSourceTrigger=PropertyChanged}" FormatString="F2" MinWidth="50" Grid.Row="3" Grid.Column="2" Maximum="1.0" Minimum="0.0" Increment="0.01" Margin="{StaticResource spaceMargin}" />
+        <xctk:DoubleUpDown d:IsHidden="True" Value="{Binding AntiDeadZoneY,UpdateSourceTrigger=PropertyChanged}" FormatString="F2" MinWidth="50" Grid.Row="3" Grid.Column="3" Maximum="1.0" Minimum="0.0" Increment="0.01" Margin="{StaticResource spaceMargin}" />
+
+        <Label Content="{lex:Loc MaxOutput}" ContentStringFormat="{}{0}:" Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" />
+        <xctk:DoubleUpDown d:IsHidden="True" Value="{Binding MaxOutputX,UpdateSourceTrigger=PropertyChanged}" FormatString="F2" MinWidth="50" Grid.Row="4" Grid.Column="2" Maximum="1.0" Minimum="0.0" Increment="0.01" Margin="{StaticResource spaceMargin}" />
+        <xctk:DoubleUpDown d:IsHidden="True" Value="{Binding MaxOutputY,UpdateSourceTrigger=PropertyChanged}" FormatString="F2" MinWidth="50" Grid.Row="4" Grid.Column="3" Maximum="1.0" Minimum="0.0" Increment="0.01" Margin="{StaticResource spaceMargin}" />
     </Grid>
 </UserControl>

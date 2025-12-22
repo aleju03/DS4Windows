@@ -115,7 +115,9 @@ namespace DS4WinWPF.DS4Forms
             Closed += ProfileEditor_Closed;
 
             profileSettingsVM.LSDeadZoneChanged += UpdateReadingsLsDeadZone;
+            profileSettingsVM.LSDeadZoneTypeChanged += UpdateReadingsLsDeadZoneType;
             profileSettingsVM.RSDeadZoneChanged += UpdateReadingsRsDeadZone;
+            profileSettingsVM.RSDeadZoneTypeChanged += UpdateReadingsRsDeadZoneType;
             profileSettingsVM.L2DeadZoneChanged += UpdateReadingsL2DeadZone;
             profileSettingsVM.R2DeadZoneChanged += UpdateReadingsR2DeadZone;
             profileSettingsVM.SXDeadZoneChanged += UpdateReadingsSXDeadZone;
@@ -131,7 +133,9 @@ namespace DS4WinWPF.DS4Forms
             Closed -= ProfileEditor_Closed;
 
             profileSettingsVM.LSDeadZoneChanged -= UpdateReadingsLsDeadZone;
+            profileSettingsVM.LSDeadZoneTypeChanged -= UpdateReadingsLsDeadZoneType;
             profileSettingsVM.RSDeadZoneChanged -= UpdateReadingsRsDeadZone;
+            profileSettingsVM.RSDeadZoneTypeChanged -= UpdateReadingsRsDeadZoneType;
             profileSettingsVM.L2DeadZoneChanged -= UpdateReadingsL2DeadZone;
             profileSettingsVM.R2DeadZoneChanged -= UpdateReadingsR2DeadZone;
             profileSettingsVM.SXDeadZoneChanged -= UpdateReadingsSXDeadZone;
@@ -223,6 +227,22 @@ namespace DS4WinWPF.DS4Forms
             conReadingsUserCon.LsDeadY = profileSettingsVM.LSDeadZone;
         }
 
+        private void UpdateReadingsLsDeadZoneType(object sender, EventArgs e)
+        {
+            conReadingsUserCon.LsDeadzoneType = Global.LSModInfo[profileSettingsVM.Device].deadzoneType;
+            // Force refresh of deadzone values if switching to/from Cross
+            if (conReadingsUserCon.LsDeadzoneType == StickDeadZoneInfo.DeadZoneType.Cross)
+            {
+                 conReadingsUserCon.LsDeadX = axialLSStickControl.AxialVM.DeadZoneX;
+                 conReadingsUserCon.LsDeadY = axialLSStickControl.AxialVM.DeadZoneY;
+            }
+            else
+            {
+                 conReadingsUserCon.LsDeadX = profileSettingsVM.LSDeadZone;
+                 conReadingsUserCon.LsDeadY = profileSettingsVM.LSDeadZone;
+            }
+        }
+
         private void UpdateReadingsLsDeadZoneX(object sender, EventArgs e)
         {
             conReadingsUserCon.LsDeadX = axialLSStickControl.AxialVM.DeadZoneX;
@@ -237,6 +257,22 @@ namespace DS4WinWPF.DS4Forms
         {
             conReadingsUserCon.RsDeadX = profileSettingsVM.RSDeadZone;
             conReadingsUserCon.RsDeadY = profileSettingsVM.RSDeadZone;
+        }
+
+        private void UpdateReadingsRsDeadZoneType(object sender, EventArgs e)
+        {
+            conReadingsUserCon.RsDeadzoneType = Global.RSModInfo[profileSettingsVM.Device].deadzoneType;
+            // Force refresh of deadzone values if switching to/from Cross
+            if (conReadingsUserCon.RsDeadzoneType == StickDeadZoneInfo.DeadZoneType.Cross)
+            {
+                 conReadingsUserCon.RsDeadX = axialRSStickControl.AxialVM.DeadZoneX;
+                 conReadingsUserCon.RsDeadY = axialRSStickControl.AxialVM.DeadZoneY;
+            }
+            else
+            {
+                 conReadingsUserCon.RsDeadX = profileSettingsVM.RSDeadZone;
+                 conReadingsUserCon.RsDeadY = profileSettingsVM.RSDeadZone;
+            }
         }
 
         private void UpdateReadingsRsDeadZoneX(object sender, EventArgs e)
@@ -679,6 +715,8 @@ namespace DS4WinWPF.DS4Forms
             conReadingsUserCon.EnableControl(false);
             axialLSStickControl.UseDevice(Global.LSModInfo[device]);
             axialRSStickControl.UseDevice(Global.RSModInfo[device]);
+            crossLSStickControl.UseDevice(Global.LSModInfo[device]);
+            crossRSStickControl.UseDevice(Global.RSModInfo[device]);
 
             specialActionsVM.LoadActions(currentProfile == null);
             mappingListVM.UpdateMappings();
@@ -704,6 +742,11 @@ namespace DS4WinWPF.DS4Forms
                 conReadingsUserCon.LsDeadX = axialLSStickControl.AxialVM.DeadZoneX;
                 conReadingsUserCon.LsDeadY = axialLSStickControl.AxialVM.DeadZoneY;
             }
+            else if (lsMod.deadzoneType == StickDeadZoneInfo.DeadZoneType.Cross)
+            {
+                conReadingsUserCon.LsDeadX = crossLSStickControl.AxialVM.DeadZoneX;
+                conReadingsUserCon.LsDeadY = crossLSStickControl.AxialVM.DeadZoneY;
+            }
 
             StickDeadZoneInfo rsMod = Global.RSModInfo[device];
             if (rsMod.deadzoneType == StickDeadZoneInfo.DeadZoneType.Radial)
@@ -716,6 +759,15 @@ namespace DS4WinWPF.DS4Forms
                 conReadingsUserCon.RsDeadX = axialRSStickControl.AxialVM.DeadZoneX;
                 conReadingsUserCon.RsDeadY = axialRSStickControl.AxialVM.DeadZoneY;
             }
+            else if (rsMod.deadzoneType == StickDeadZoneInfo.DeadZoneType.Cross)
+            {
+                conReadingsUserCon.RsDeadX = crossRSStickControl.AxialVM.DeadZoneX;
+                conReadingsUserCon.RsDeadY = crossRSStickControl.AxialVM.DeadZoneY;
+            }
+
+            // Set deadzone types for visualization
+            conReadingsUserCon.LsDeadzoneType = lsMod.deadzoneType;
+            conReadingsUserCon.RsDeadzoneType = rsMod.deadzoneType;
 
             conReadingsUserCon.L2Dead = profileSettingsVM.L2DeadZone;
             conReadingsUserCon.R2Dead = profileSettingsVM.R2DeadZone;
@@ -726,6 +778,10 @@ namespace DS4WinWPF.DS4Forms
             axialLSStickControl.AxialVM.DeadZoneYChanged += UpdateReadingsLsDeadZoneY;
             axialRSStickControl.AxialVM.DeadZoneXChanged += UpdateReadingsRsDeadZoneX;
             axialRSStickControl.AxialVM.DeadZoneYChanged += UpdateReadingsRsDeadZoneY;
+            crossLSStickControl.AxialVM.DeadZoneXChanged += UpdateReadingsLsDeadZoneX;
+            crossLSStickControl.AxialVM.DeadZoneYChanged += UpdateReadingsLsDeadZoneY;
+            crossRSStickControl.AxialVM.DeadZoneXChanged += UpdateReadingsRsDeadZoneX;
+            crossRSStickControl.AxialVM.DeadZoneYChanged += UpdateReadingsRsDeadZoneY;
 
             // Sort special action list by action name
             CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(specialActionsVM.ActionCol);
@@ -749,6 +805,8 @@ namespace DS4WinWPF.DS4Forms
             touchButtonUC.UnregisterDataContext();
             axialLSStickControl.UnregisterDataContext();
             axialRSStickControl.UnregisterDataContext();
+            crossLSStickControl.UnregisterDataContext();
+            crossRSStickControl.UnregisterDataContext();
         }
 
         private void RefreshEditorBindings()

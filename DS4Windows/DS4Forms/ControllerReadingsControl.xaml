@@ -39,9 +39,25 @@
                 <Canvas x:Name="lsCanvas" Width="130" Height="130" ClipToBounds="True">
                     <Rectangle Width="130" Height="130" Stroke="{DynamicResource ForegroundColor}">
                     </Rectangle>
+                    <!-- Green active area for Cross deadzone -->
+                    <Ellipse x:Name="lsCrossActiveArea" Width="130" Height="130" Canvas.Left="0" Canvas.Top="0"
+                             Fill="#AA1FCF1F" Visibility="Collapsed">
+                    </Ellipse>
                     <Ellipse x:Name="lsDeadEllipse" Width="{Binding Path=Width, ElementName=lsCanvas}"
                              Height="{Binding Path=Height, ElementName=lsCanvas}" Fill="#FFCF1F1F">
                     </Ellipse>
+                    <!-- Cross Deadzone: Horizontal band (Y axis dead band) - Yellow -->
+                    <Rectangle x:Name="lsCrossDeadY" Width="130" Height="10" Canvas.Left="0" Canvas.Top="60" 
+                               Fill="#DDCFCF1F" Visibility="Collapsed">
+                    </Rectangle>
+                    <!-- Cross Deadzone: Vertical band (X axis dead band) - Yellow -->
+                    <Rectangle x:Name="lsCrossDeadX" Width="10" Height="130" Canvas.Left="60" Canvas.Top="0" 
+                               Fill="#DDCFCF1F" Visibility="Collapsed">
+                    </Rectangle>
+                    <!-- Center red square where bands intersect -->
+                    <Rectangle x:Name="lsCrossCenter" Width="10" Height="10" Canvas.Left="60" Canvas.Top="60"
+                               Fill="#FFCF1F1F" Visibility="Collapsed">
+                    </Rectangle>
                     <Rectangle x:Name="lsMapValRec" Width="6" Height="6" Canvas.Left="62" Canvas.Top="62" Fill="#FFABABAB">
                     </Rectangle>
                     <Rectangle x:Name="lsValRec" Width="6" Height="6" Canvas.Left="62" Canvas.Top="62" Fill="{DynamicResource ForegroundColor}">
@@ -75,9 +91,25 @@
                     <Rectangle Width="{Binding Path=Width, ElementName=rsCanvas}"
                                Height="{Binding Path=Height, ElementName=rsCanvas}" Stroke="{DynamicResource ForegroundColor}">
                     </Rectangle>
+                    <!-- Green active area for Cross deadzone -->
+                    <Ellipse x:Name="rsCrossActiveArea" Width="130" Height="130" Canvas.Left="0" Canvas.Top="0"
+                             Fill="#AA1FCF1F" Visibility="Collapsed">
+                    </Ellipse>
                     <Ellipse x:Name="rsDeadEllipse" Width="{Binding Path=Width, ElementName=rsCanvas}"
                              Height="{Binding Path=Height, ElementName=rsCanvas}" Fill="#FFCF1F1F">
                     </Ellipse>
+                    <!-- Cross Deadzone: Horizontal band (Y axis dead band) - Yellow -->
+                    <Rectangle x:Name="rsCrossDeadY" Width="130" Height="10" Canvas.Left="0" Canvas.Top="60" 
+                               Fill="#DDCFCF1F" Visibility="Collapsed">
+                    </Rectangle>
+                    <!-- Cross Deadzone: Vertical band (X axis dead band) - Yellow -->
+                    <Rectangle x:Name="rsCrossDeadX" Width="10" Height="130" Canvas.Left="60" Canvas.Top="0" 
+                               Fill="#DDCFCF1F" Visibility="Collapsed">
+                    </Rectangle>
+                    <!-- Center red square where bands intersect -->
+                    <Rectangle x:Name="rsCrossCenter" Width="10" Height="10" Canvas.Left="60" Canvas.Top="60"
+                               Fill="#FFCF1F1F" Visibility="Collapsed">
+                    </Rectangle>
                     <Rectangle x:Name="rsMapValRec" Width="6" Height="6" Canvas.Left="62" Canvas.Top="62" Fill="#FFABABAB">
                     </Rectangle>
                     <Rectangle x:Name="rsValRec" Width="6" Height="6" Canvas.Left="62" Canvas.Top="62" Fill="{DynamicResource ForegroundColor}">

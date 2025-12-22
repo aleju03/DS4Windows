@@ -46,7 +46,8 @@ namespace DS4Windows
         public enum DeadZoneType : ushort
         {
             Radial,
-            Axial
+            Axial,
+            Cross
         }
 
         public const int DEFAULT_DEADZONE = 10;

@@ -276,6 +276,7 @@
                                                 <ComboBox MinWidth="160" SelectedIndex="{Binding LSDeadTypeIndex,FallbackValue='0'}" VerticalContentAlignment="Center" Margin="10,0,0,0">
                                                     <ComboBoxItem Content="{lex:Loc Radial}" />
                                                     <ComboBoxItem Content="{lex:Loc Axial}" />
+                                                    <ComboBoxItem Content="Cross" />
                                                 </ComboBox>
                                             </StackPanel>
 
@@ -337,6 +338,9 @@
 
                                                 <TabItem Header="{lex:Loc Axial}" Visibility="Collapsed">
                                                     <local:AxialStickUserControl x:Name="axialLSStickControl" />
+                                                </TabItem>
+                                                <TabItem Header="Cross" Visibility="Collapsed">
+                                                    <local:AxialStickUserControl x:Name="crossLSStickControl" />
                                                 </TabItem>
                                             </TabControl>
 
@@ -589,6 +593,7 @@
                                                 <ComboBox MinWidth="160" SelectedIndex="{Binding RSDeadTypeIndex,FallbackValue='0'}" VerticalContentAlignment="Center" Margin="10,0,0,0">
                                                     <ComboBoxItem Content="{lex:Loc Radial}" />
                                                     <ComboBoxItem Content="{lex:Loc Axial}" />
+                                                    <ComboBoxItem Content="Cross" />
                                                 </ComboBox>
                                             </StackPanel>
 
@@ -649,6 +654,9 @@
                                                 </TabItem>
                                                 <TabItem Header="{lex:Loc Axial}" Visibility="Collapsed">
                                                     <local:AxialStickUserControl x:Name="axialRSStickControl" />
+                                                </TabItem>
+                                                <TabItem Header="Cross" Visibility="Collapsed">
+                                                    <local:AxialStickUserControl x:Name="crossRSStickControl" />
                                                 </TabItem>
                                             </TabControl>
 

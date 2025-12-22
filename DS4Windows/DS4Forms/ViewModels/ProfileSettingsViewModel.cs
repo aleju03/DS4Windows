@@ -1047,6 +1047,8 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                         break;
                     case StickDeadZoneInfo.DeadZoneType.Axial:
                         index = 1; break;
+                    case StickDeadZoneInfo.DeadZoneType.Cross:
+                        index = 2; break;
                     default: break;
                 }
 
@@ -1061,14 +1063,19 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                     case 1:
                         temp = StickDeadZoneInfo.DeadZoneType.Axial;
                         break;
+                    case 2:
+                        temp = StickDeadZoneInfo.DeadZoneType.Cross;
+                        break;
                     default: break;
                 }
 
                 StickDeadZoneInfo.DeadZoneType current = Global.LSModInfo[device].deadzoneType;
                 if (temp == current) return;
                 Global.LSModInfo[device].deadzoneType = temp;
+                LSDeadZoneTypeChanged?.Invoke(this, EventArgs.Empty);
             }
         }
+        public event EventHandler LSDeadZoneTypeChanged;
 
         public int RSDeadTypeIndex
         {
@@ -1081,6 +1088,8 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                         break;
                     case StickDeadZoneInfo.DeadZoneType.Axial:
                         index = 1; break;
+                    case StickDeadZoneInfo.DeadZoneType.Cross:
+                        index = 2; break;
                     default: break;
                 }
 
@@ -1095,14 +1104,19 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                     case 1:
                         temp = StickDeadZoneInfo.DeadZoneType.Axial;
                         break;
+                    case 2:
+                        temp = StickDeadZoneInfo.DeadZoneType.Cross;
+                        break;
                     default: break;
                 }
 
                 StickDeadZoneInfo.DeadZoneType current = Global.RSModInfo[device].deadzoneType;
                 if (temp == current) return;
                 Global.RSModInfo[device].deadzoneType = temp;
+                RSDeadZoneTypeChanged?.Invoke(this, EventArgs.Empty);
             }
         }
+        public event EventHandler RSDeadZoneTypeChanged;
 
         public double LSSens
         {
