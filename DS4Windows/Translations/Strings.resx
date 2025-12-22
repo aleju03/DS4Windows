@@ -829,6 +829,9 @@ Disabled:
   <data name="Cubic" xml:space="preserve">
     <value>Cubic</value>
   </data>
+  <data name="Cross" xml:space="preserve">
+    <value>Cross</value>
+  </data>
   <data name="DeadZone X" xml:space="preserve">
     <value>DeadZone X</value>
   </data>
