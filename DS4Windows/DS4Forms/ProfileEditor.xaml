@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="DS4WinWPF.DS4Forms.ProfileEditor"
+<UserControl x:Class="DS4WinWPF.DS4Forms.ProfileEditor"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -344,14 +344,45 @@
                                                     <local:AxialStickUserControl x:Name="crossLSStickControl" />
                                                 </TabItem>
                                                 <TabItem Header="{lex:Loc Square}" Visibility="Collapsed">
-                                                    <StackPanel Margin="0,8,0,0">
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <Label Content="{lex:Loc Roundness}" ContentStringFormat="{}{0}:" />
-                                                            <xctk:DoubleUpDown d:IsHidden="True" FormatString="F1" Value="{Binding LSSquareRoundness,FallbackValue=5}"
-                                                               MinWidth="100" Minimum="0.0" Maximum="1000.0" Increment="1.0"
-                                                               Margin="10,0,0,0" />
-                                                        </StackPanel>
-                                                    </StackPanel>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition/>
+                                                            <ColumnDefinition/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition/>
+                                                            <RowDefinition Style="{StaticResource gridRowHeight}" />
+                                                            <RowDefinition Style="{StaticResource gridRowHeight}" />
+                                                            <RowDefinition />
+                                                            <RowDefinition Style="{StaticResource gridRowHeight}" />
+                                                            <RowDefinition Style="{StaticResource gridRowHeight}" />
+                                                            <RowDefinition Style="{StaticResource gridRowHeight}" />
+                                                        </Grid.RowDefinitions>
+
+                                                        <Label Content="{lex:Loc DeadZone}" ContentStringFormat="{}{0}:" Grid.Row="0" Grid.Column="0" />
+                                                        <xctk:DoubleUpDown d:IsHidden="True" Value="{Binding LSDeadZone,UpdateSourceTrigger=LostFocus}" FormatString="F2" MinWidth="50" Grid.Row="0" Grid.Column="1" Maximum="1.0" Minimum="0.0" Increment="0.1" Margin="{StaticResource spaceMargin}" />
+
+                                                        <Label Content="{lex:Loc MaxZone}" ContentStringFormat="{}{0}:" Grid.Row="1" Grid.Column="0" />
+                                                        <xctk:DoubleUpDown d:IsHidden="True" Value="{Binding LSMaxZone}" FormatString="F2" MinWidth="50" Grid.Row="1" Grid.Column="1" Maximum="1.0" Minimum="0.0" Increment="0.1" Margin="{StaticResource spaceMargin}" />
+
+                                                        <Label Content="{lex:Loc AntiDeadZone}" ContentStringFormat="{}{0}:" Grid.Row="2" Grid.Column="0" />
+                                                        <xctk:DoubleUpDown d:IsHidden="True" Value="{Binding LSAntiDeadZone}" FormatString="F2" MinWidth="50" Grid.Row="2" Grid.Column="1" Maximum="1.0" Minimum="0.0" Increment="0.1" Margin="{StaticResource spaceMargin}" ToolTip="{lex:Loc AntiDeadzoneTooltip}" />
+
+                                                        <Label Content="{lex:Loc MaxOutput}" ContentStringFormat="{}{0}:" Grid.Row="3" Grid.Column="0" />
+                                                        <DockPanel Grid.Row="3" Grid.Column="1">
+                                                            <CheckBox Content="Force" IsChecked="{Binding LSMaxOutputForce}" VerticalAlignment="Center" DockPanel.Dock="Right" ToolTip="{lex:Loc StickMaxOutputForceTooltip}" Margin="8,0,0,0" />
+                                                            <xctk:DoubleUpDown d:IsHidden="True" Value="{Binding LSMaxOutput}" FormatString="F2" MinWidth="50" Maximum="1.0" Minimum="0.0" Increment="0.1" Margin="{StaticResource spaceMargin}" DockPanel.Dock="Left" ToolTip="{lex:Loc StickMaxOutputTooltip}" />
+                                                        </DockPanel>
+
+                                                        <Label Content="{lex:Loc VerticalScale}" ContentStringFormat="{}{0}:" Grid.Row="4" Grid.Column="0" />
+                                                        <xctk:DoubleUpDown d:IsHidden="True" Value="{Binding LSVerticalScale}" FormatString="F2" MinWidth="50" Grid.Row="4" Grid.Column="1" Maximum="4.0" Minimum="0.0" Increment="0.1" Margin="{StaticResource spaceMargin}" />
+
+                                                        <Label Content="{lex:Loc Sensitivity}" ContentStringFormat="{}{0}:" Grid.Row="5" Grid.Column="0" />
+                                                        <xctk:DoubleUpDown d:IsHidden="True" FormatString="F2" Value="{Binding LSSens}" MinWidth="50" Grid.Row="5" Grid.Column="1" Maximum="5.0" Minimum="0.1" Increment="0.1" Margin="{StaticResource spaceMargin}" />
+
+                                                        <Label Content="{lex:Loc Roundness}" ContentStringFormat="{}{0}:" Grid.Row="6" Grid.Column="0" />
+                                                        <xctk:DoubleUpDown d:IsHidden="True" FormatString="F1" Value="{Binding LSSquareRoundness,FallbackValue=5}" MinWidth="100" Minimum="0.0" Maximum="1000.0" Increment="1.0" Margin="{StaticResource spaceMargin}" Grid.Row="6" Grid.Column="1" />
+                                                    </Grid>
                                                 </TabItem>
                                             </TabControl>
 
@@ -388,11 +419,11 @@
                                                     <ComboBoxItem Content="{lex:Loc Custom}" />
                                                 </ComboBox>
 
-                                                <DockPanel Grid.Row="1" Grid.Column="1" IsEnabled="{Binding LSCustomCurveSelected}">
-                                                    <Button x:Name="lsCustomEditorBtn" Content="..." Tag="LS" Width="20" DockPanel.Dock="Right" Click="CustomEditorBtn_Click"
+                                                <DockPanel Grid.Row="1" Grid.Column="1">
+                                                    <Button x:Name="lsCustomEditorBtn" Content="..." Tag="LS" Width="20" DockPanel.Dock="Right" Click="CustomEditorBtn_Click" IsEnabled="{Binding LSCustomCurveSelected}"
                                             Margin="{StaticResource spaceMargin}" />
                                                     <TextBox Text="{Binding LSCustomCurve,UpdateSourceTrigger=LostFocus,FallbackValue='0.00, 0.00, 1.00, 1.00'}" DockPanel.Dock="Left"
-                                             Margin="{StaticResource spaceMargin}" />
+                                             Margin="{StaticResource spaceMargin}" ><TextBox.Style><Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding LSCustomCurveSelected}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBox.Style></TextBox>
                                                 </DockPanel>
 
                                                 <!-- Square Stick row - hidden, Square is now a dedicated deadzone type -->
@@ -486,6 +517,13 @@
                                                 <Label Content="Calibrate:" Grid.Row="11" Grid.Column="0" />
                                                 <Button x:Name="lsCalibrateBtn" Content="Calibrate Now" Grid.Row="11" Grid.Column="1" Click="LSCalibrateBtn_Click"
                                                         Margin="{StaticResource spaceMargin}" ToolTip="Click while stick is at rest position to auto-detect and correct drift" />
+                                                
+                                                <Label Content="Circularity:" Grid.Row="12" Grid.Column="0" ToolTip="Calibrate the stick edge boundary to correct circularity errors" />
+                                                <StackPanel Orientation="Horizontal" Grid.Row="12" Grid.Column="1">
+                                                    <CheckBox Content="Enable" IsChecked="{Binding LSCircularityEnabled}" Margin="{StaticResource spaceMargin}" VerticalAlignment="Center" ToolTip="Enable circularity correction" />
+                                                    <Button x:Name="lsCircularityCalibrateBtn" Content="Calibrate Edge..." Click="LSCircularityCalibrateBtn_Click"
+                                                            Margin="{StaticResource spaceMargin}" ToolTip="Open the circularity calibration wizard to record stick boundary and correct circular shape errors" />
+                                                </StackPanel>
                                             </Grid>
 
                                             <GroupBox Header="{lex:Loc DeltaAcceleration}" DockPanel.Dock="Top">
@@ -674,14 +712,45 @@
                                                     <local:AxialStickUserControl x:Name="crossRSStickControl" />
                                                 </TabItem>
                                                 <TabItem Header="{lex:Loc Square}" Visibility="Collapsed">
-                                                    <StackPanel Margin="0,8,0,0">
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <Label Content="{lex:Loc Roundness}" ContentStringFormat="{}{0}:" />
-                                                            <xctk:DoubleUpDown d:IsHidden="True" FormatString="F1" Value="{Binding RSSquareRoundness,FallbackValue=5}"
-                                                               MinWidth="100" Minimum="0.0" Maximum="1000.0" Increment="1.0"
-                                                               Margin="10,0,0,0" />
-                                                        </StackPanel>
-                                                    </StackPanel>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition/>
+                                                            <ColumnDefinition/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition/>
+                                                            <RowDefinition Style="{StaticResource gridRowHeight}" />
+                                                            <RowDefinition Style="{StaticResource gridRowHeight}" />
+                                                            <RowDefinition />
+                                                            <RowDefinition Style="{StaticResource gridRowHeight}" />
+                                                            <RowDefinition Style="{StaticResource gridRowHeight}" />
+                                                            <RowDefinition Style="{StaticResource gridRowHeight}" />
+                                                        </Grid.RowDefinitions>
+
+                                                        <Label Content="{lex:Loc DeadZone}" ContentStringFormat="{}{0}:" Grid.Row="0" Grid.Column="0" />
+                                                        <xctk:DoubleUpDown d:IsHidden="True" Value="{Binding RSDeadZone,UpdateSourceTrigger=LostFocus}" FormatString="F2" MinWidth="50" Grid.Row="0" Grid.Column="1" Maximum="1.0" Minimum="0.0" Increment="0.1" Margin="{StaticResource spaceMargin}" />
+
+                                                        <Label Content="{lex:Loc MaxZone}" ContentStringFormat="{}{0}:" Grid.Row="1" Grid.Column="0" />
+                                                        <xctk:DoubleUpDown d:IsHidden="True" Value="{Binding RSMaxZone}" FormatString="F2" MinWidth="50" Grid.Row="1" Grid.Column="1" Maximum="1.0" Minimum="0.0" Increment="0.1" Margin="{StaticResource spaceMargin}" />
+
+                                                        <Label Content="{lex:Loc AntiDeadZone}" ContentStringFormat="{}{0}:" Grid.Row="2" Grid.Column="0" />
+                                                        <xctk:DoubleUpDown d:IsHidden="True" Value="{Binding RSAntiDeadZone}" FormatString="F2" MinWidth="50" Grid.Row="2" Grid.Column="1" Maximum="1.0" Minimum="0.0" Increment="0.1" Margin="{StaticResource spaceMargin}" ToolTip="{lex:Loc AntiDeadzoneTooltip}" />
+
+                                                        <Label Content="{lex:Loc MaxOutput}" ContentStringFormat="{}{0}:" Grid.Row="3" Grid.Column="0" />
+                                                        <DockPanel Grid.Row="3" Grid.Column="1">
+                                                            <CheckBox Content="Force" IsChecked="{Binding RSMaxOutputForce}" VerticalAlignment="Center" DockPanel.Dock="Right" ToolTip="{lex:Loc StickMaxOutputForceTooltip}" Margin="8,0,0,0" />
+                                                            <xctk:DoubleUpDown d:IsHidden="True" Value="{Binding RSMaxOutput}" FormatString="F2" MinWidth="50" Maximum="1.0" Minimum="0.0" Increment="0.1" Margin="{StaticResource spaceMargin}" DockPanel.Dock="Left" ToolTip="{lex:Loc StickMaxOutputTooltip}" />
+                                                        </DockPanel>
+
+                                                        <Label Content="{lex:Loc VerticalScale}" ContentStringFormat="{}{0}:" Grid.Row="4" Grid.Column="0" />
+                                                        <xctk:DoubleUpDown d:IsHidden="True" Value="{Binding RSVerticalScale}" FormatString="F2" MinWidth="50" Grid.Row="4" Grid.Column="1" Maximum="4.0" Minimum="0.0" Increment="0.1" Margin="{StaticResource spaceMargin}" />
+
+                                                        <Label Content="{lex:Loc Sensitivity}" ContentStringFormat="{}{0}:" Grid.Row="5" Grid.Column="0" />
+                                                        <xctk:DoubleUpDown d:IsHidden="True" FormatString="F2" Value="{Binding RSSens}" MinWidth="50" Grid.Row="5" Grid.Column="1" Maximum="5.0" Minimum="0.1" Increment="0.1" Margin="{StaticResource spaceMargin}" />
+
+                                                        <Label Content="{lex:Loc Roundness}" ContentStringFormat="{}{0}:" Grid.Row="6" Grid.Column="0" />
+                                                        <xctk:DoubleUpDown d:IsHidden="True" FormatString="F1" Value="{Binding RSSquareRoundness,FallbackValue=5}" MinWidth="100" Minimum="0.0" Maximum="1000.0" Increment="1.0" Margin="{StaticResource spaceMargin}" Grid.Row="6" Grid.Column="1" />
+                                                    </Grid>
                                                 </TabItem>
                                             </TabControl>
 
@@ -718,11 +787,11 @@
                                                     <ComboBoxItem Content="{lex:Loc Custom}" />
                                                 </ComboBox>
 
-                                                <DockPanel Grid.Row="1" Grid.Column="1" IsEnabled="{Binding RSCustomCurveSelected}">
-                                                    <Button x:Name="rsCustomEditorBtn" Content="..." Tag="RS" Width="20" DockPanel.Dock="Right" Click="CustomEditorBtn_Click"
+                                                <DockPanel Grid.Row="1" Grid.Column="1">
+                                                    <Button x:Name="rsCustomEditorBtn" Content="..." Tag="RS" Width="20" DockPanel.Dock="Right" Click="CustomEditorBtn_Click" IsEnabled="{Binding RSCustomCurveSelected}"
                                             Margin="{StaticResource spaceMargin}" />
                                                     <TextBox Text="{Binding RSCustomCurve,UpdateSourceTrigger=LostFocus,FallbackValue='0.00, 0.00, 1.00, 1.00'}" DockPanel.Dock="Left"
-                                             Margin="{StaticResource spaceMargin}" />
+                                             Margin="{StaticResource spaceMargin}" ><TextBox.Style><Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding RSCustomCurveSelected}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBox.Style></TextBox>
                                                 </DockPanel>
 
                                                 <!-- Square Stick row - hidden, Square is now a dedicated deadzone type -->
@@ -814,6 +883,13 @@
                                                 <Label Content="Calibrate:" Grid.Row="11" Grid.Column="0" />
                                                 <Button x:Name="rsCalibrateBtn" Content="Calibrate Now" Grid.Row="11" Grid.Column="1" Click="RSCalibrateBtn_Click"
                                                         Margin="{StaticResource spaceMargin}" ToolTip="Click while stick is at rest position to auto-detect and correct drift" />
+                                                
+                                                <Label Content="Circularity:" Grid.Row="12" Grid.Column="0" ToolTip="Calibrate the stick edge boundary to correct circularity errors" />
+                                                <StackPanel Orientation="Horizontal" Grid.Row="12" Grid.Column="1">
+                                                    <CheckBox Content="Enable" IsChecked="{Binding RSCircularityEnabled}" Margin="{StaticResource spaceMargin}" VerticalAlignment="Center" ToolTip="Enable circularity correction" />
+                                                    <Button x:Name="rsCircularityCalibrateBtn" Content="Calibrate Edge..." Click="RSCircularityCalibrateBtn_Click"
+                                                            Margin="{StaticResource spaceMargin}" ToolTip="Open the circularity calibration wizard to record stick boundary and correct circular shape errors" />
+                                                </StackPanel>
                                             </Grid>
 
                                             <GroupBox Header="{lex:Loc DeltaAcceleration}" DockPanel.Dock="Top">

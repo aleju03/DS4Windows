@@ -1146,10 +1146,21 @@ namespace DS4Windows
                 CalcStickAxisFuzz(device, 1, rsMod.fuzz, cState.RX, cState.RY, out cState.RX, out cState.RY);
             }
 
+            // Apply circularity correction (normalizes input based on calibration data)
+            if (lsMod.circularityCalibration.enabled && lsMod.circularityCalibration.isCalibrated)
+            {
+                ApplyCircularityCorrection(ref cState.LX, ref cState.LY, lsMod.circularityCalibration);
+            }
+
+            if (rsMod.circularityCalibration.enabled && rsMod.circularityCalibration.isCalibrated)
+            {
+                ApplyCircularityCorrection(ref cState.RX, ref cState.RY, rsMod.circularityCalibration);
+            }
+
             cState.CopyTo(dState);
             //DS4State dState = new DS4State(cState);
 
-            if (lsMod.deadzoneType == StickDeadZoneInfo.DeadZoneType.Radial)
+            if (lsMod.deadzoneType == StickDeadZoneInfo.DeadZoneType.Radial || lsMod.deadzoneType == StickDeadZoneInfo.DeadZoneType.Square)
             {
                 int lsDeadzone = lsMod.deadZone;
                 int lsAntiDead = lsMod.antiDeadZone;
@@ -1479,7 +1490,7 @@ namespace DS4Windows
             }
 
 
-            if (rsMod.deadzoneType == StickDeadZoneInfo.DeadZoneType.Radial)
+            if (rsMod.deadzoneType == StickDeadZoneInfo.DeadZoneType.Radial || rsMod.deadzoneType == StickDeadZoneInfo.DeadZoneType.Square)
             {
                 int rsDeadzone = rsMod.deadZone;
                 int rsAntiDead = rsMod.antiDeadZone;
@@ -6939,6 +6950,41 @@ namespace DS4Windows
                 useAxisY = axisYValue;
             }
             queue.Enqueue(new DS4TimedStickAxisValue(axisXValue, axisYValue, timestamp));
+        }
+
+        /// <summary>
+        /// Apply circularity correction to normalize stick input based on calibration data.
+        /// This ensures that pushing the stick to its physical edge in any direction
+        /// produces full 100% output (or close to it).
+        /// </summary>
+        /// <param name="x">X axis value (0-255, center 128)</param>
+        /// <param name="y">Y axis value (0-255, center 128)</param>
+        /// <param name="calibration">Calibration data with boundary points</param>
+        private static void ApplyCircularityCorrection(ref byte x, ref byte y, StickCircularityCalibration calibration)
+        {
+            // Convert to normalized coordinates (-1 to 1, center at 0)
+            double nx = (x - 128.0) / 127.0;
+            double ny = (y - 128.0) / 127.0;
+
+            double magnitude = Math.Sqrt(nx * nx + ny * ny);
+            if (magnitude < 0.01) return; // Skip if near center to avoid division issues
+
+            double angle = Math.Atan2(ny, nx);
+
+            // Get the expected maximum magnitude at this angle from calibration
+            double maxAtAngle = calibration.GetMaxMagnitudeAtAngle(angle);
+            if (maxAtAngle < 0.01) return; // Safety check
+
+            // Normalize: scale input so that maxAtAngle maps to 1.0
+            double correctedMagnitude = Math.Min(magnitude / maxAtAngle, 1.0);
+
+            // Convert back to unit circle coordinates
+            double correctedNx = correctedMagnitude * Math.Cos(angle);
+            double correctedNy = correctedMagnitude * Math.Sin(angle);
+
+            // Convert back to byte coordinates (0-255)
+            x = (byte)Math.Clamp(128 + correctedNx * 127.0, 0, 255);
+            y = (byte)Math.Clamp(128 + correctedNy * 127.0, 0, 255);
         }
     }
 }

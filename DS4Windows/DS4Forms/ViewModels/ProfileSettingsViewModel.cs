@@ -1289,6 +1289,26 @@ namespace DS4WinWPF.DS4Forms.ViewModels
         }
         public event EventHandler RSCenterOffsetYChanged;
 
+        public bool LSCircularityEnabled
+        {
+            get => Global.LSModInfo[device].circularityCalibration.enabled;
+            set
+            {
+                if (Global.LSModInfo[device].circularityCalibration.enabled == value) return;
+                Global.LSModInfo[device].circularityCalibration.enabled = value;
+            }
+        }
+
+        public bool RSCircularityEnabled
+        {
+            get => Global.RSModInfo[device].circularityCalibration.enabled;
+            set
+            {
+                if (Global.RSModInfo[device].circularityCalibration.enabled == value) return;
+                Global.RSModInfo[device].circularityCalibration.enabled = value;
+            }
+        }
+
         public bool LSAntiSnapback
         {
             get => Global.LSAntiSnapbackInfo[device].enabled;

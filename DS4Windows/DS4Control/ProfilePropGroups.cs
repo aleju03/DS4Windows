@@ -17,6 +17,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System;
+using System.Linq;
 using DS4Windows.StickModifiers;
 using DS4WinWPF.DS4Control;
 using Sensorit.Base;
@@ -38,6 +39,131 @@ namespace DS4Windows
             rsMode = false;
             lsRoundness = DEFAULT_ROUNDNESS;
             rsRoundness = DEFAULT_ROUNDNESS;
+        }
+    }
+
+    /// <summary>
+    /// Stores calibration data to correct joystick circularity errors.
+    /// Records the actual maximum magnitude at 36 angles (every 10 degrees)
+    /// and interpolates to normalize input so all directions reach 100%.
+    /// </summary>
+    public class StickCircularityCalibration
+    {
+        public const int NUM_BOUNDARY_POINTS = 36; // Every 10 degrees
+        public const double ANGLE_INCREMENT = Math.PI * 2.0 / NUM_BOUNDARY_POINTS;
+
+        /// <summary>
+        /// Whether circularity correction is enabled for this stick.
+        /// </summary>
+        public bool enabled = false;
+
+        /// <summary>
+        /// Whether valid calibration data exists.
+        /// </summary>
+        public bool isCalibrated = false;
+
+        /// <summary>
+        /// Array of 36 maximum magnitude values (0.0 to 1.0+) recorded at each 10° angle.
+        /// Index 0 = 0°, Index 1 = 10°, etc. Angle measured from positive X axis.
+        /// </summary>
+        public double[] boundaryPoints = new double[NUM_BOUNDARY_POINTS];
+
+        public StickCircularityCalibration()
+        {
+            Reset();
+        }
+
+        /// <summary>
+        /// Get the interpolated maximum magnitude at any angle using linear interpolation.
+        /// </summary>
+        /// <param name="angleRad">Angle in radians from positive X axis (-PI to PI)</param>
+        /// <returns>Expected maximum magnitude at this angle (0.0 to 1.0+)</returns>
+        public double GetMaxMagnitudeAtAngle(double angleRad)
+        {
+            if (!isCalibrated) return 1.0;
+
+            // Normalize angle to 0 to 2*PI
+            double normalizedAngle = angleRad;
+            if (normalizedAngle < 0) normalizedAngle += Math.PI * 2.0;
+
+            // Find the two boundary points to interpolate between
+            double indexFloat = normalizedAngle / ANGLE_INCREMENT;
+            int lowerIndex = (int)Math.Floor(indexFloat) % NUM_BOUNDARY_POINTS;
+            int upperIndex = (lowerIndex + 1) % NUM_BOUNDARY_POINTS;
+            double fraction = indexFloat - Math.Floor(indexFloat);
+
+            // Linear interpolation between the two boundary points
+            return boundaryPoints[lowerIndex] * (1.0 - fraction) + boundaryPoints[upperIndex] * fraction;
+        }
+
+        /// <summary>
+        /// Calculate the average circularity error percentage.
+        /// Error is how much the boundary deviates from a perfect circle.
+        /// </summary>
+        /// <returns>Error percentage (0% = perfect circle)</returns>
+        public double CalculateAverageError()
+        {
+            if (!isCalibrated) return 0.0;
+
+            double sumError = 0.0;
+            for (int i = 0; i < NUM_BOUNDARY_POINTS; i++)
+            {
+                // Error is deviation from 1.0 (perfect circle)
+                sumError += Math.Abs(boundaryPoints[i] - 1.0);
+            }
+            return (sumError / NUM_BOUNDARY_POINTS) * 100.0;
+        }
+
+        /// <summary>
+        /// Reset calibration to default (perfect circle, disabled).
+        /// </summary>
+        public void Reset()
+        {
+            enabled = false;
+            isCalibrated = false;
+            for (int i = 0; i < NUM_BOUNDARY_POINTS; i++)
+            {
+                boundaryPoints[i] = 1.0; // Default to perfect circle
+            }
+        }
+
+        /// <summary>
+        /// Copy calibration data from another instance.
+        /// </summary>
+        public void CopyFrom(StickCircularityCalibration other)
+        {
+            enabled = other.enabled;
+            isCalibrated = other.isCalibrated;
+            Array.Copy(other.boundaryPoints, boundaryPoints, NUM_BOUNDARY_POINTS);
+        }
+
+        /// <summary>
+        /// Serialize boundary points to a comma-separated string for XML storage.
+        /// </summary>
+        public string BoundaryPointsToString()
+        {
+            return string.Join(",", boundaryPoints.Select(p => p.ToString("F4")));
+        }
+
+        /// <summary>
+        /// Parse boundary points from a comma-separated string.
+        /// </summary>
+        public bool ParseBoundaryPoints(string data)
+        {
+            if (string.IsNullOrEmpty(data)) return false;
+
+            string[] parts = data.Split(',');
+            if (parts.Length != NUM_BOUNDARY_POINTS) return false;
+
+            double[] parsed = new double[NUM_BOUNDARY_POINTS];
+            for (int i = 0; i < NUM_BOUNDARY_POINTS; i++)
+            {
+                if (!double.TryParse(parts[i], out parsed[i]))
+                    return false;
+            }
+
+            Array.Copy(parsed, boundaryPoints, NUM_BOUNDARY_POINTS);
+            return true;
         }
     }
 
@@ -102,6 +228,9 @@ namespace DS4Windows
         public AxisDeadZoneInfo xAxisDeadInfo = new AxisDeadZoneInfo();
         public AxisDeadZoneInfo yAxisDeadInfo = new AxisDeadZoneInfo();
 
+        // Circularity calibration to correct joystick edge shape
+        public StickCircularityCalibration circularityCalibration = new StickCircularityCalibration();
+
         public void Reset()
         {
             deadZone = 0;
@@ -119,8 +248,10 @@ namespace DS4Windows
             yOffset = DEFAULT_Y_OFFSET;
             xAxisDeadInfo.Reset();
             yAxisDeadInfo.Reset();
+            circularityCalibration.Reset();
         }
     }
+
 
     public class StickAntiSnapbackInfo
     {

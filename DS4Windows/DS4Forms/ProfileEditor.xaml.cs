@@ -1810,6 +1810,34 @@ namespace DS4WinWPF.DS4Forms
                 }
             }
         }
+
+        /// <summary>
+        /// Open the circularity calibration dialog for the left stick.
+        /// </summary>
+        public void LSCircularityCalibrateBtn_Click(object sender, RoutedEventArgs e)
+        {
+            StickDeadZoneInfo lsMod = Global.LSModInfo[deviceNum];
+            StickCalibrationWindow calibrationWindow = new StickCalibrationWindow(
+                deviceNum, 
+                isLeftStick: true, 
+                lsMod.circularityCalibration);
+            calibrationWindow.Owner = Window.GetWindow(this);
+            calibrationWindow.ShowDialog();
+        }
+
+        /// <summary>
+        /// Open the circularity calibration dialog for the right stick.
+        /// </summary>
+        public void RSCircularityCalibrateBtn_Click(object sender, RoutedEventArgs e)
+        {
+            StickDeadZoneInfo rsMod = Global.RSModInfo[deviceNum];
+            StickCalibrationWindow calibrationWindow = new StickCalibrationWindow(
+                deviceNum,
+                isLeftStick: false,
+                rsMod.circularityCalibration);
+            calibrationWindow.Owner = Window.GetWindow(this);
+            calibrationWindow.ShowDialog();
+        }
     }
 
     public class ResourcePaths

@@ -644,6 +644,18 @@ namespace DS4WinWPF.DS4Control.DTOXml
             get; set;
         }
 
+        [XmlElement("LSCircularityCalibration")]
+        public StickCircularityCalibrationSerializer LSCircularityCalibration
+        {
+            get; set;
+        }
+
+        [XmlElement("RSCircularityCalibration")]
+        public StickCircularityCalibrationSerializer RSCircularityCalibration
+        {
+            get; set;
+        }
+
         private double _sXDeadZone = BackingStore.DEFAULT_SX_TILT_DEADZONE;
         [XmlElement("SXDeadZone")]
         public double SXDeadZone
@@ -1433,8 +1445,10 @@ namespace DS4WinWPF.DS4Control.DTOXml
         {
             LSAxialDeadOptions = new StickAxialDeadOptionsSerializer();
             LSDeltaAccelSettings = new StickDeltaAccelSettings();
+            LSCircularityCalibration = new StickCircularityCalibrationSerializer();
             RSAxialDeadOptions = new StickAxialDeadOptionsSerializer();
             RSDeltaAccelSettings = new StickDeltaAccelSettings();
+            RSCircularityCalibration = new StickCircularityCalibrationSerializer();
             LaunchProgram = string.Empty;
             SATriggers = BackingStore.DEFAULT_SA_TRIGGERS;
             SASteeringWheelSmoothingOptions = new SASteeringWheelSmoothingOptions();
@@ -1574,6 +1588,12 @@ namespace DS4WinWPF.DS4Control.DTOXml
                 EasingDuration = source.rsOutputSettings[deviceIndex].outputSettings.controlSettings.deltaAccelSettings.easingDuration,
                 MinFactor = source.rsOutputSettings[deviceIndex].outputSettings.controlSettings.deltaAccelSettings.minfactor,
             };
+
+            // Serialize circularity calibration
+            LSCircularityCalibration = new StickCircularityCalibrationSerializer();
+            LSCircularityCalibration.CopyFrom(source.lsModInfo[deviceIndex].circularityCalibration);
+            RSCircularityCalibration = new StickCircularityCalibrationSerializer();
+            RSCircularityCalibration.CopyFrom(source.rsModInfo[deviceIndex].circularityCalibration);
 
             SXDeadZone = source.SXDeadzone[deviceIndex];
             SZDeadZone = source.SZDeadzone[deviceIndex];
@@ -2082,6 +2102,16 @@ namespace DS4WinWPF.DS4Control.DTOXml
                 destination.rsOutputSettings[deviceIndex].outputSettings.controlSettings.deltaAccelSettings.minTravel = RSDeltaAccelSettings.MinTravel;
                 destination.rsOutputSettings[deviceIndex].outputSettings.controlSettings.deltaAccelSettings.easingDuration = RSDeltaAccelSettings.EasingDuration;
                 destination.rsOutputSettings[deviceIndex].outputSettings.controlSettings.deltaAccelSettings.minfactor = RSDeltaAccelSettings.MinFactor;
+            }
+
+            // Load circularity calibration
+            if (LSCircularityCalibration != null)
+            {
+                LSCircularityCalibration.CopyTo(destination.lsModInfo[deviceIndex].circularityCalibration);
+            }
+            if (RSCircularityCalibration != null)
+            {
+                RSCircularityCalibration.CopyTo(destination.rsModInfo[deviceIndex].circularityCalibration);
             }
 
             destination.SXDeadzone[deviceIndex] = SXDeadZone;
@@ -2782,6 +2812,62 @@ namespace DS4WinWPF.DS4Control.DTOXml
         {
             get => _minFactor;
             set => _minFactor = Math.Clamp(value, 1.0, 10.0);
+        }
+    }
+
+    /// <summary>
+    /// Serializer class for StickCircularityCalibration.
+    /// </summary>
+    public class StickCircularityCalibrationSerializer
+    {
+        [XmlIgnore]
+        public bool Enabled { get; set; } = false;
+
+        [XmlElement("Enabled")]
+        public string EnabledString
+        {
+            get => Enabled.ToString();
+            set => Enabled = XmlDataUtilities.StrToBool(value);
+        }
+
+        [XmlIgnore]
+        public bool IsCalibrated { get; set; } = false;
+
+        [XmlElement("IsCalibrated")]
+        public string IsCalibratedString
+        {
+            get => IsCalibrated.ToString();
+            set => IsCalibrated = XmlDataUtilities.StrToBool(value);
+        }
+
+        /// <summary>
+        /// Comma-separated list of 36 boundary point values.
+        /// </summary>
+        [XmlElement("BoundaryPoints")]
+        public string BoundaryPoints { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Copy data from a StickCircularityCalibration instance.
+        /// </summary>
+        public void CopyFrom(StickCircularityCalibration source)
+        {
+            Enabled = source.enabled;
+            IsCalibrated = source.isCalibrated;
+            BoundaryPoints = source.BoundaryPointsToString();
+        }
+
+        /// <summary>
+        /// Copy data to a StickCircularityCalibration instance.
+        /// </summary>
+        public void CopyTo(StickCircularityCalibration dest)
+        {
+            dest.enabled = Enabled;
+            dest.isCalibrated = IsCalibrated;
+            if (IsCalibrated && !string.IsNullOrEmpty(BoundaryPoints))
+            {
+                dest.ParseBoundaryPoints(BoundaryPoints);
+                dest.isCalibrated = true;
+            }
         }
     }
 
