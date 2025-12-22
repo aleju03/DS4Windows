@@ -33,20 +33,6 @@
             <RowDefinition Style="{StaticResource gridRowHeight}" />
         </Grid.RowDefinitions>
 
-        <!-- Visualization Column -->
-        <Border Grid.Column="0" Grid.Row="0" Grid.RowSpan="5" Margin="0,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Center" BorderBrush="{DynamicResource ForegroundColor}" BorderThickness="1">
-             <Canvas x:Name="deadzoneCanvas" Width="100" Height="100" ClipToBounds="True" Background="Transparent">
-                  <!-- Green Active Area -->
-                  <Ellipse Width="100" Height="100" Fill="#AA1FCF1F" />
-                  <!-- Yellow Y Band (Horizontal) -->
-                  <Rectangle x:Name="visualDeadY" Fill="#DDCFCF1F" Width="100" Height="0" Canvas.Top="50" Canvas.Left="0" />
-                  <!-- Yellow X Band (Vertical) -->
-                  <Rectangle x:Name="visualDeadX" Fill="#DDCFCF1F" Width="0" Height="100" Canvas.Top="0" Canvas.Left="50" />
-                  <!-- Red Center -->
-                  <Rectangle x:Name="visualDeadCenter" Fill="#FFCF1F1F" Width="0" Height="0" Canvas.Top="50" Canvas.Left="50" />
-             </Canvas>
-        </Border>
-
         <!-- Labels and Controls -->
         <TextBlock Text="X" Grid.Column="2" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,8" />
         <TextBlock Text="Y" Grid.Column="3"  FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,8" />
