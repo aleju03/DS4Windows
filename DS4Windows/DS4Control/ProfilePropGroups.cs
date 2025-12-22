@@ -47,7 +47,8 @@ namespace DS4Windows
         {
             Radial,
             Axial,
-            Cross
+            Cross,
+            Square
         }
 
         public const int DEFAULT_DEADZONE = 10;

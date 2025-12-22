@@ -277,6 +277,7 @@
                                                     <ComboBoxItem Content="{lex:Loc Radial}" />
                                                     <ComboBoxItem Content="{lex:Loc Axial}" />
                                                     <ComboBoxItem Content="{lex:Loc Cross}" />
+                                                    <ComboBoxItem Content="{lex:Loc Square}" />
                                                 </ComboBox>
                                             </StackPanel>
 
@@ -342,6 +343,16 @@
                                                 <TabItem Header="{lex:Loc Cross}" Visibility="Collapsed">
                                                     <local:AxialStickUserControl x:Name="crossLSStickControl" />
                                                 </TabItem>
+                                                <TabItem Header="{lex:Loc Square}" Visibility="Collapsed">
+                                                    <StackPanel Margin="0,8,0,0">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Label Content="{lex:Loc Roundness}" ContentStringFormat="{}{0}:" />
+                                                            <xctk:DoubleUpDown d:IsHidden="True" FormatString="F1" Value="{Binding LSSquareRoundness,FallbackValue=5}"
+                                                               MinWidth="100" Minimum="0.0" Maximum="1000.0" Increment="1.0"
+                                                               Margin="10,0,0,0" />
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                </TabItem>
                                             </TabControl>
 
                                             <Grid DockPanel.Dock="Top">
@@ -384,8 +395,11 @@
                                              Margin="{StaticResource spaceMargin}" />
                                                 </DockPanel>
 
-                                                <Label Content="{lex:Loc SquareStick}" ContentStringFormat="{}{0}:" Grid.Row="2" Grid.Column="0" />
-                                                <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Right">
+                                                <!-- Square Stick row - hidden, Square is now a dedicated deadzone type -->
+                                                <!-- When Square deadzone is selected, square mode is auto-enabled -->
+                                                <!-- The roundness value is still accessible in the Square deadzone tab below -->
+                                                <Label Content="{lex:Loc SquareStick}" ContentStringFormat="{}{0}:" Grid.Row="2" Grid.Column="0" Visibility="Collapsed" />
+                                                <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Right" Visibility="Collapsed">
                                                     <CheckBox IsChecked="{Binding LSSquareStick}" Margin="{StaticResource spaceMargin}" VerticalAlignment="Center" />
                                                     <xctk:DoubleUpDown d:IsHidden="True" FormatString="F1" Value="{Binding LSSquareRoundness,FallbackValue=5}"
                                                        MinWidth="100" Minimum="0.0" Maximum="1000.0" Increment="1.0" IsEnabled="{Binding LSSquareStick}"
@@ -594,6 +608,7 @@
                                                     <ComboBoxItem Content="{lex:Loc Radial}" />
                                                     <ComboBoxItem Content="{lex:Loc Axial}" />
                                                     <ComboBoxItem Content="{lex:Loc Cross}" />
+                                                    <ComboBoxItem Content="{lex:Loc Square}" />
                                                 </ComboBox>
                                             </StackPanel>
 
@@ -658,6 +673,16 @@
                                                 <TabItem Header="{lex:Loc Cross}" Visibility="Collapsed">
                                                     <local:AxialStickUserControl x:Name="crossRSStickControl" />
                                                 </TabItem>
+                                                <TabItem Header="{lex:Loc Square}" Visibility="Collapsed">
+                                                    <StackPanel Margin="0,8,0,0">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Label Content="{lex:Loc Roundness}" ContentStringFormat="{}{0}:" />
+                                                            <xctk:DoubleUpDown d:IsHidden="True" FormatString="F1" Value="{Binding RSSquareRoundness,FallbackValue=5}"
+                                                               MinWidth="100" Minimum="0.0" Maximum="1000.0" Increment="1.0"
+                                                               Margin="10,0,0,0" />
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                </TabItem>
                                             </TabControl>
 
                                             <Grid DockPanel.Dock="Top">
@@ -700,8 +725,9 @@
                                              Margin="{StaticResource spaceMargin}" />
                                                 </DockPanel>
 
-                                                <Label Content="{lex:Loc SquareStick}" ContentStringFormat="{}{0}:" Grid.Row="2" Grid.Column="0" />
-                                                <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Right">
+                                                <!-- Square Stick row - hidden, Square is now a dedicated deadzone type -->
+                                                <Label Content="{lex:Loc SquareStick}" ContentStringFormat="{}{0}:" Grid.Row="2" Grid.Column="0" Visibility="Collapsed" />
+                                                <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Right" Visibility="Collapsed">
                                                     <CheckBox IsChecked="{Binding RSSquareStick}" Margin="{StaticResource spaceMargin}" VerticalAlignment="Center" />
                                                     <xctk:DoubleUpDown d:IsHidden="True" FormatString="F1" Value="{Binding RSSquareRoundness,FallbackValue=5}"
                                                        MinWidth="100" Minimum="0.0" Maximum="1000.0" Increment="1.0" IsEnabled="{Binding RSSquareStick}"

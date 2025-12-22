@@ -1049,6 +1049,8 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                         index = 1; break;
                     case StickDeadZoneInfo.DeadZoneType.Cross:
                         index = 2; break;
+                    case StickDeadZoneInfo.DeadZoneType.Square:
+                        index = 3; break;
                     default: break;
                 }
 
@@ -1066,12 +1068,19 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                     case 2:
                         temp = StickDeadZoneInfo.DeadZoneType.Cross;
                         break;
+                    case 3:
+                        temp = StickDeadZoneInfo.DeadZoneType.Square;
+                        break;
                     default: break;
                 }
 
                 StickDeadZoneInfo.DeadZoneType current = Global.LSModInfo[device].deadzoneType;
                 if (temp == current) return;
                 Global.LSModInfo[device].deadzoneType = temp;
+                
+                // Auto-enable square stick mode when Square deadzone type is selected
+                Global.SquStickInfo[device].lsMode = (temp == StickDeadZoneInfo.DeadZoneType.Square);
+                
                 LSDeadZoneTypeChanged?.Invoke(this, EventArgs.Empty);
             }
         }
@@ -1090,6 +1099,8 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                         index = 1; break;
                     case StickDeadZoneInfo.DeadZoneType.Cross:
                         index = 2; break;
+                    case StickDeadZoneInfo.DeadZoneType.Square:
+                        index = 3; break;
                     default: break;
                 }
 
@@ -1107,12 +1118,19 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                     case 2:
                         temp = StickDeadZoneInfo.DeadZoneType.Cross;
                         break;
+                    case 3:
+                        temp = StickDeadZoneInfo.DeadZoneType.Square;
+                        break;
                     default: break;
                 }
 
                 StickDeadZoneInfo.DeadZoneType current = Global.RSModInfo[device].deadzoneType;
                 if (temp == current) return;
                 Global.RSModInfo[device].deadzoneType = temp;
+                
+                // Auto-enable square stick mode when Square deadzone type is selected
+                Global.SquStickInfo[device].rsMode = (temp == StickDeadZoneInfo.DeadZoneType.Square);
+                
                 RSDeadZoneTypeChanged?.Invoke(this, EventArgs.Empty);
             }
         }
