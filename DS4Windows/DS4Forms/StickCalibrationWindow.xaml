@@ -47,7 +47,8 @@
         <!-- Status and Stats -->
         <StackPanel Grid.Row="2" Margin="0,12,0,12">
             <TextBlock x:Name="statusText" Text="Status: Ready" />
-            <TextBlock x:Name="errorText" Text="Average Error: --" Margin="0,4,0,0" />
+            <TextBlock x:Name="errorText" Text="Raw Boundary Error: --" Margin="0,4,0,0" />
+            <TextBlock x:Name="correctedErrorText" Text="Estimated After Correction: --" Margin="0,2,0,0" Foreground="#88FF88" />
             <TextBlock x:Name="instructionText" Text="" Margin="0,4,0,0" Foreground="Orange" />
         </StackPanel>
 

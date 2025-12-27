@@ -2841,7 +2841,8 @@ namespace DS4WinWPF.DS4Control.DTOXml
         }
 
         /// <summary>
-        /// Comma-separated list of 36 boundary point values.
+        /// Comma-separated list of 72 boundary point values (5° intervals).
+        /// Legacy profiles with 36 points are automatically migrated.
         /// </summary>
         [XmlElement("BoundaryPoints")]
         public string BoundaryPoints { get; set; } = string.Empty;

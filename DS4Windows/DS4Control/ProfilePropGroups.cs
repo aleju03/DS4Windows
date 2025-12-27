@@ -49,7 +49,7 @@ namespace DS4Windows
     /// </summary>
     public class StickCircularityCalibration
     {
-        public const int NUM_BOUNDARY_POINTS = 36; // Every 10 degrees
+        public const int NUM_BOUNDARY_POINTS = 72; // Every 5 degrees for finer granularity
         public const double ANGLE_INCREMENT = Math.PI * 2.0 / NUM_BOUNDARY_POINTS;
 
         /// <summary>
@@ -63,8 +63,8 @@ namespace DS4Windows
         public bool isCalibrated = false;
 
         /// <summary>
-        /// Array of 36 maximum magnitude values (0.0 to 1.0+) recorded at each 10° angle.
-        /// Index 0 = 0°, Index 1 = 10°, etc. Angle measured from positive X axis.
+        /// Array of 72 maximum magnitude values (0.0 to 1.0+) recorded at each 5° angle.
+        /// Index 0 = 0°, Index 1 = 5°, etc. Angle measured from positive X axis.
         /// </summary>
         public double[] boundaryPoints = new double[NUM_BOUNDARY_POINTS];
 
@@ -74,7 +74,8 @@ namespace DS4Windows
         }
 
         /// <summary>
-        /// Get the interpolated maximum magnitude at any angle using linear interpolation.
+        /// Get the interpolated maximum magnitude at any angle using cosine interpolation
+        /// for smoother transitions between recorded boundary points.
         /// </summary>
         /// <param name="angleRad">Angle in radians from positive X axis (-PI to PI)</param>
         /// <returns>Expected maximum magnitude at this angle (0.0 to 1.0+)</returns>
@@ -86,14 +87,16 @@ namespace DS4Windows
             double normalizedAngle = angleRad;
             if (normalizedAngle < 0) normalizedAngle += Math.PI * 2.0;
 
-            // Find the two boundary points to interpolate between
+            // Find the boundary points to interpolate between
             double indexFloat = normalizedAngle / ANGLE_INCREMENT;
-            int lowerIndex = (int)Math.Floor(indexFloat) % NUM_BOUNDARY_POINTS;
-            int upperIndex = (lowerIndex + 1) % NUM_BOUNDARY_POINTS;
-            double fraction = indexFloat - Math.Floor(indexFloat);
+            int idx0 = (int)Math.Floor(indexFloat) % NUM_BOUNDARY_POINTS;
+            int idx1 = (idx0 + 1) % NUM_BOUNDARY_POINTS;
+            double t = indexFloat - Math.Floor(indexFloat);
 
-            // Linear interpolation between the two boundary points
-            return boundaryPoints[lowerIndex] * (1.0 - fraction) + boundaryPoints[upperIndex] * fraction;
+            // Cosine interpolation for smoother curve between points
+            // This reduces the "angular" artifacts at bucket boundaries
+            double cosT = (1.0 - Math.Cos(t * Math.PI)) / 2.0;
+            return boundaryPoints[idx0] * (1.0 - cosT) + boundaryPoints[idx1] * cosT;
         }
 
         /// <summary>
@@ -147,12 +150,40 @@ namespace DS4Windows
 
         /// <summary>
         /// Parse boundary points from a comma-separated string.
+        /// Supports migration from old 36-point format to new 72-point format.
         /// </summary>
         public bool ParseBoundaryPoints(string data)
         {
             if (string.IsNullOrEmpty(data)) return false;
 
             string[] parts = data.Split(',');
+            
+            // If we have old 36-point format, interpolate to 72 points
+            if (parts.Length == 36)
+            {
+                double[] oldParsed = new double[36];
+                for (int i = 0; i < 36; i++)
+                {
+                    if (!double.TryParse(parts[i], out oldParsed[i]))
+                        return false;
+                }
+                
+                // Convert 36 points (10° intervals) to 72 points (5° intervals)
+                // by interpolating between each pair of old points
+                for (int i = 0; i < 36; i++)
+                {
+                    int newIdx = i * 2;
+                    int nextOldIdx = (i + 1) % 36;
+                    
+                    // Direct copy for aligned points
+                    boundaryPoints[newIdx] = oldParsed[i];
+                    // Interpolate midpoint
+                    boundaryPoints[newIdx + 1] = (oldParsed[i] + oldParsed[nextOldIdx]) / 2.0;
+                }
+                return true;
+            }
+            
+            // Normal case: exact match
             if (parts.Length != NUM_BOUNDARY_POINTS) return false;
 
             double[] parsed = new double[NUM_BOUNDARY_POINTS];

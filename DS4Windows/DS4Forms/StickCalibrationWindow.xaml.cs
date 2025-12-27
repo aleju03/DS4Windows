@@ -191,13 +191,29 @@ namespace DS4WinWPF.DS4Forms
                     // Find the angle bucket
                     double normalizedAngle = angle;
                     if (normalizedAngle < 0) normalizedAngle += Math.PI * 2;
-                    int bucketIndex = (int)(normalizedAngle / StickCircularityCalibration.ANGLE_INCREMENT) 
-                        % StickCircularityCalibration.NUM_BOUNDARY_POINTS;
                     
-                    // Update if this is a new maximum for this angle
-                    if (magnitude > recordedBoundary[bucketIndex])
+                    // Calculate exact bucket position for weighted distribution
+                    double exactIndex = normalizedAngle / StickCircularityCalibration.ANGLE_INCREMENT;
+                    int primaryBucket = (int)Math.Floor(exactIndex) % StickCircularityCalibration.NUM_BOUNDARY_POINTS;
+                    int nextBucket = (primaryBucket + 1) % StickCircularityCalibration.NUM_BOUNDARY_POINTS;
+                    int prevBucket = (primaryBucket - 1 + StickCircularityCalibration.NUM_BOUNDARY_POINTS) % StickCircularityCalibration.NUM_BOUNDARY_POINTS;
+                    
+                    // Update primary bucket if this is a new maximum
+                    if (magnitude > recordedBoundary[primaryBucket])
                     {
-                        recordedBoundary[bucketIndex] = magnitude;
+                        recordedBoundary[primaryBucket] = magnitude;
+                    }
+                    
+                    // Also update adjacent buckets with slightly decayed values for better coverage
+                    // This helps fill gaps when the user doesn't hit exact bucket centers
+                    double adjacentMagnitude = magnitude * 0.97; // 3% decay for adjacent buckets
+                    if (adjacentMagnitude > recordedBoundary[nextBucket])
+                    {
+                        recordedBoundary[nextBucket] = adjacentMagnitude;
+                    }
+                    if (adjacentMagnitude > recordedBoundary[prevBucket])
+                    {
+                        recordedBoundary[prevBucket] = adjacentMagnitude;
                     }
                 }
                 
@@ -251,7 +267,7 @@ namespace DS4WinWPF.DS4Forms
 
         private void UpdateErrorDisplay()
         {
-            // Calculate average error (deviation from 1.0)
+            // Calculate raw boundary error (deviation from 1.0)
             double sumError = 0.0;
             int validPoints = 0;
             for (int i = 0; i < StickCircularityCalibration.NUM_BOUNDARY_POINTS; i++)
@@ -265,12 +281,48 @@ namespace DS4WinWPF.DS4Forms
             
             if (validPoints > 0)
             {
-                double avgError = (sumError / validPoints) * 100.0;
-                errorText.Text = $"Average Error: {avgError:F1}% ({validPoints}/{StickCircularityCalibration.NUM_BOUNDARY_POINTS} points recorded)";
+                double rawError = (sumError / validPoints) * 100.0;
+                errorText.Text = $"Raw Boundary Error: {rawError:F1}% ({validPoints}/{StickCircularityCalibration.NUM_BOUNDARY_POINTS} points recorded)";
+                
+                // Calculate estimated corrected error using cosine interpolation simulation
+                // This simulates what the corrected output would look like
+                double correctedSumError = 0.0;
+                int testPoints = 360; // Test at 1-degree intervals
+                for (int deg = 0; deg < testPoints; deg++)
+                {
+                    double testAngle = deg * Math.PI / 180.0;
+                    
+                    // Find what the boundary magnitude is at this angle (simulate interpolation)
+                    double normalizedAngle = testAngle;
+                    if (normalizedAngle < 0) normalizedAngle += Math.PI * 2.0;
+                    double indexFloat = normalizedAngle / StickCircularityCalibration.ANGLE_INCREMENT;
+                    int idx0 = (int)Math.Floor(indexFloat) % StickCircularityCalibration.NUM_BOUNDARY_POINTS;
+                    int idx1 = (idx0 + 1) % StickCircularityCalibration.NUM_BOUNDARY_POINTS;
+                    double t = indexFloat - Math.Floor(indexFloat);
+                    
+                    // Cosine interpolation (same as correction algorithm)
+                    double cosT = (1.0 - Math.Cos(t * Math.PI)) / 2.0;
+                    double interpolatedBoundary = recordedBoundary[idx0] * (1.0 - cosT) + recordedBoundary[idx1] * cosT;
+                    
+                    // After correction, this becomes: actualMag / interpolatedBoundary
+                    // If we push to the actual boundary, corrected = boundary / interpolatedBoundary
+                    // The error is how far this is from 1.0
+                    if (interpolatedBoundary > 0.1)
+                    {
+                        // Find the nearest recorded boundary point value
+                        double actualBoundary = recordedBoundary[idx0];
+                        double corrected = actualBoundary / interpolatedBoundary;
+                        correctedSumError += Math.Abs(corrected - 1.0);
+                    }
+                }
+                
+                double estimatedCorrectedError = (correctedSumError / testPoints) * 100.0;
+                correctedErrorText.Text = $"Estimated After Correction: ~{estimatedCorrectedError:F1}%";
             }
             else
             {
-                errorText.Text = "Average Error: -- (no points recorded)";
+                errorText.Text = "Raw Boundary Error: -- (no points recorded)";
+                correctedErrorText.Text = "Estimated After Correction: --";
             }
         }
 
